@@ -1,0 +1,5 @@
+{"input": "get current time", "program": ". time.now"}
+{"input": "store note hello", "program": ". memory.store :text=\"hello\""}
+{"input": "fetch example.com", "program": ". http.fetch :url=\"example.com\""}
+{"input": "read memory", "program": ". memory.read"}
+{"input": "write key x value y", "program": ". memory.write :key=\"x\" :value=\"y\""}

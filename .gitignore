@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.tmp
+.DS_Store
+
+# training artifacts
+models/
+data/generated.jsonl
+data/raw.jsonl
+data/rejected.jsonl
+data/stats.json
+data/tokenizer_metrics.json
+
+# tokenizer artifacts (keep only if needed)
+tokenizer/tokenizer.json
+
+# OS / editor
+.vscode/
+.idea/
