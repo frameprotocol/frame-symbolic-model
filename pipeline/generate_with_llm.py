@@ -21,7 +21,7 @@ from interlang.ast import Op
 from interlang.parser import parse
 from pipeline.canonicalize import canonicalize
 from pipeline.hash import hash_program
-from pipeline.validate import validate
+from pipeline.validate import is_valid_program, sanitize_text, validate
 
 Backend = Literal["mock", "ollama"]
 
@@ -64,7 +64,8 @@ def strict_llm_output_reason(raw: str) -> tuple[str | None, RejectReason | None]
     """
     Single program line only. Reasons: format (empty), multi_line, no_dot.
     """
-    text = (raw or "").strip()
+    raw = sanitize_text(raw or "")
+    text = raw.strip()
     if not text:
         return None, "format"
     lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
@@ -275,6 +276,8 @@ def accept_or_reject(
     *,
     seen_hashes: set[str] | None,
 ) -> tuple[str, str, List[Op]] | RejectRow:
+    input_text = sanitize_text(input_text)
+    raw = sanitize_text(raw)
     line, sr = strict_llm_output_reason(raw)
     if line is None:
         return {"input": input_text, "raw": raw, "reason": sr or "format"}
@@ -283,6 +286,9 @@ def accept_or_reject(
         ast = parse(canon)
     except ValueError:
         return {"input": input_text, "raw": raw, "reason": "parse_error"}
+    canon = sanitize_text(canon)
+    if not is_valid_program(canon):
+        return {"input": input_text, "raw": raw, "reason": "invalid"}
     if not validate(canon):
         return {"input": input_text, "raw": raw, "reason": "invalid"}
     if len(ast) > MAX_OPS:
@@ -358,11 +364,11 @@ def main() -> None:
         _accumulate_stats(ast, op_counts, arg_patterns)
 
     out_path.write_text(
-        "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows),
+        sanitize_text("".join(json.dumps(r, ensure_ascii=True) + "\n" for r in rows)),
         encoding="utf-8",
     )
     reject_path.write_text(
-        "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rejected),
+        sanitize_text("".join(json.dumps(r, ensure_ascii=True) + "\n" for r in rejected)),
         encoding="utf-8",
     )
 

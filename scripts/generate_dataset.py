@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.canonicalize import canonicalize
-from pipeline.validate import validate
+from pipeline.validate import is_valid_program, sanitize_text, validate
 
 WORDS = (
     "hello alpha beta gamma note task result data payload echo foxtrot "
@@ -32,24 +32,43 @@ URLS = [
 
 NAMES = ("kyle", "alex", "sam", "river", "jordan", "casey", "morgan")
 
+HIGH_SIGNAL_EXAMPLES = [
+    ("get current time", ". time.now"),
+    ("what time is it", ". time.now"),
+    ('fetch example.com', '. web.request :url="https://example.com"'),
+    ('store hello in memory', '. memory.store :text="hello"'),
+    ('get current time and store it', '. time.now ; memory.store :text="current_time"'),
+]
+
+VARIANTS = [
+    ("tell me the time", ". time.now"),
+    ("current time please", ". time.now"),
+    ("save current time", '. time.now ; memory.store :text="current_time"'),
+]
+
 
 def try_append(
     inp: str,
     raw: str,
-    seen_prog: set[str],
     lines_out: list[str],
 ) -> bool:
+    inp = sanitize_text(inp)
+    raw = sanitize_text(raw)
     try:
         c = canonicalize(raw)
     except ValueError:
         return False
+    c = sanitize_text(c)
+    if not is_valid_program(c):
+        return False
     if not validate(c):
         return False
-    if c in seen_prog:
-        return False
-    seen_prog.add(c)
-    row = {"input": inp, "program": c, "output": c}
-    lines_out.append(json.dumps(row, ensure_ascii=False))
+    row = {
+        "input": sanitize_text(inp),
+        "program": sanitize_text(c),
+        "output": sanitize_text(c),
+    }
+    lines_out.append(json.dumps(row, ensure_ascii=True))
     return True
 
 
@@ -57,7 +76,6 @@ def candidate_pairs() -> list[tuple[str, str]]:
     pairs: list[tuple[str, str]] = []
 
     pairs.append(("get current time", ". time.now"))
-    pairs.append(("get current time and store it", '. time.now ; memory.store :text="current_time"'))
     pairs.append(("what time is it", ". time.now"))
     pairs.append(("current timestamp please", ". time.now"))
 
@@ -139,14 +157,37 @@ def main() -> None:
         help="rows to append (1000–5000 typical)",
     )
     args = ap.parse_args()
-    n_target = max(1000, min(args.num, 5000))
+    n_target = max(1, args.num)
 
-    seen_prog: set[str] = set()
     lines_out: list[str] = []
+
+    # Balanced injection block (high-signal intent->operation mapping).
+    # Cap each single mapping to avoid collapsing diversity.
+    dataset_pairs: list[tuple[str, str]] = []
+
+    # Keep time-only, fetch, and store balanced; reduce chain overlap so
+    # "get current time" doesn't learn to emit only memory.store.
+    for inp, out in HIGH_SIGNAL_EXAMPLES:
+        chain = 'memory.store :text="current_time"' in out
+        count = 50 if chain else 200
+        for _ in range(count):
+            dataset_pairs.append((inp, out))
+
+    for inp, out in VARIANTS:
+        chain = 'memory.store :text="current_time"' in out
+        count = 0 if chain else 100
+        for _ in range(count):
+            dataset_pairs.append((inp, out))
+
+    for inp, raw in dataset_pairs:
+        if len(lines_out) >= n_target:
+            break
+        try_append(inp, raw, lines_out)
+
     for inp, raw in candidate_pairs():
         if len(lines_out) >= n_target:
             break
-        try_append(inp, raw, seen_prog, lines_out)
+        try_append(inp, raw, lines_out)
 
     fill = 0
     while len(lines_out) < n_target and fill < n_target * 20:
@@ -155,7 +196,6 @@ def main() -> None:
         try_append(
             f"indexed fetch {fill} {w}",
             f'. web.request :url="{u}" -> memory.store :text="{w}_{fill}"',
-            seen_prog,
             lines_out,
         )
         fill += 1
@@ -164,7 +204,7 @@ def main() -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("a", encoding="utf-8") as f:
         for ln in lines_out:
-            f.write(ln + "\n")
+            f.write(sanitize_text(ln) + "\n")
     print(f"Appended {len(lines_out)} rows to {out_path}")
 
 

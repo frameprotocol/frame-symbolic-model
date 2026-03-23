@@ -12,7 +12,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.canonicalize import canonicalize
-from pipeline.validate import validate
+from pipeline.validate import is_valid_program, sanitize_text, validate
 
 SEEDS: list[tuple[str, str]] = [
     ("get current time", ". time.now"),
@@ -33,20 +33,27 @@ def main() -> None:
     canon_rows: list[dict[str, str]] = []
 
     for intent, program in SEEDS:
+        intent = sanitize_text(intent)
+        program = sanitize_text(program)
         raw_rows.append({"input": intent, "program": program})
         try:
             c = canonicalize(program)
         except ValueError as e:
             raise SystemExit(f"canonicalize failed for {intent!r}: {e}") from e
+        c = sanitize_text(c)
+        if not is_valid_program(c):
+            raise SystemExit(f"charset validation failed for {intent!r}")
         if not validate(c):
             raise SystemExit(f"validate failed after canonicalize for {intent!r}")
         canon_rows.append({"input": intent, "program": c})
 
     raw_path.write_text(
-        "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in raw_rows), encoding="utf-8"
+        sanitize_text("".join(json.dumps(r, ensure_ascii=True) + "\n" for r in raw_rows)),
+        encoding="utf-8",
     )
     out_path.write_text(
-        "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in canon_rows), encoding="utf-8"
+        sanitize_text("".join(json.dumps(r, ensure_ascii=True) + "\n" for r in canon_rows)),
+        encoding="utf-8",
     )
     print(f"Wrote {raw_path} and {out_path} ({len(canon_rows)} rows)")
 

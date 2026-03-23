@@ -12,7 +12,6 @@ from typing import Any
 import torch
 from peft import LoraConfig, TaskType, get_peft_model
 from transformers import (
-    AutoTokenizer,
     Trainer,
     TrainingArguments,
     TrainerCallback,
@@ -26,7 +25,6 @@ if str(ROOT) not in sys.path:
 from training import config as cfg
 from training.dataset import load_training_records
 from training.tokenizer_load import (
-    EXTRA_SPECIAL,
     load_causal_lm_with_fallback,
     load_tokenizer_for_training,
 )
@@ -174,26 +172,19 @@ def main() -> None:
     )
     tokenizer, used_symbolic = load_tokenizer_for_training(ROOT, resolved)
 
+    model_vocab = None
     try:
-        model.resize_token_embeddings(len(tokenizer))
-    except Exception as e:
-        if not used_symbolic:
-            raise
+        model_vocab = int(model.get_input_embeddings().num_embeddings)
+    except Exception:
+        model_vocab = None
+    tok_vocab = len(tokenizer)
+    if model_vocab is not None and tok_vocab == model_vocab:
+        # Safe no-op resize path when tokenizer/model vocab already match.
+        model.resize_token_embeddings(tok_vocab)
+    else:
         print(
-            f"WARNING: resize_token_embeddings failed for symbolic vocab "
-            f"({type(e).__name__}: {e}). Switching to {resolved!r} tokenizer."
+            f"Skipping resize_token_embeddings (tokenizer_vocab={tok_vocab}, model_vocab={model_vocab})."
         )
-        tokenizer = AutoTokenizer.from_pretrained(resolved, trust_remote_code=True)
-        if tokenizer.pad_token is None and tokenizer.eos_token is not None:
-            tokenizer.pad_token = tokenizer.eos_token
-        for s in EXTRA_SPECIAL:
-            try:
-                if s not in tokenizer.additional_special_tokens:
-                    tokenizer.add_special_tokens({"additional_special_tokens": [s]})
-            except Exception:
-                pass
-        used_symbolic = False
-        model.resize_token_embeddings(len(tokenizer))
 
     targets, fan_in = lora_target_modules(resolved)
     peft_config = LoraConfig(

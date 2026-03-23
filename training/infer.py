@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -16,9 +17,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pipeline.canonicalize import canonicalize
-from pipeline.validate import validate
+from pipeline.validate import sanitize_text, validate
 from training import config as cfg
 from training.tokenizer_load import load_tokenizer_for_inference, read_resolved_base
+from tokenizer.symbolic_pre import TOK_JOIN
 
 ADAPTER_DIR = ROOT / "models" / "symbolic-lora"
 
@@ -31,6 +33,17 @@ def extract_after_output(decoded_full: str) -> str:
     if "<OUTPUT>" in decoded_full:
         return decoded_full.split("<OUTPUT>", 1)[-1].strip()
     return decoded_full.strip()
+
+
+def clean_generated_text(text: str) -> str:
+    # Model may emit symbolic pre-tokenization separators; recover plain program text.
+    cleaned = text.replace(TOK_JOIN, " ")
+    cleaned = sanitize_text(cleaned)
+    cleaned = cleaned.replace("<|endoftext|>", " ")
+    cleaned = " ".join(cleaned.split())
+    cleaned = re.sub(r':\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*', r':\1=', cleaned)
+    cleaned = re.sub(r"\s*;\s*", " ; ", cleaned)
+    return " ".join(cleaned.split())
 
 
 def main() -> None:
@@ -84,8 +97,8 @@ def main() -> None:
     seq = out[0].tolist()
     full_decoded = tokenizer.decode(seq, skip_special_tokens=False)
     new_tokens = seq[input_ids.shape[1] :]
-    raw = tokenizer.decode(new_tokens, skip_special_tokens=False).strip()
-    parsed = extract_after_output(full_decoded)
+    raw = clean_generated_text(tokenizer.decode(new_tokens, skip_special_tokens=False).strip())
+    parsed = clean_generated_text(extract_after_output(full_decoded))
 
     print("INPUT:")
     print(args.input_text)
@@ -100,6 +113,7 @@ def main() -> None:
     try:
         c = canonicalize(parsed)
         if validate(c):
+            parsed = c
             status = "VALID"
     except ValueError:
         pass

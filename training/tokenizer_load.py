@@ -1,4 +1,4 @@
-"""Symbolic vs base-model tokenizer selection (no silent fallback)."""
+"""Tokenizer/model loading for symbolic LoRA training and inference."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ import json
 from pathlib import Path
 from typing import Any, Tuple
 
-from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedTokenizerFast
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-EXTRA_SPECIAL = ["<INPUT>", "<OUTPUT>", "<|endoftext|>"]
+EXTRA_SPECIAL = ["<INPUT>", "<OUTPUT>"]
 
 
 def _add_prompt_specials(tok: Any) -> None:
@@ -20,37 +20,11 @@ def _add_prompt_specials(tok: Any) -> None:
             pass
 
 
-def load_symbolic_tokenizer(root: Path) -> PreTrainedTokenizerFast:
-    path = root / "tokenizer" / "tokenizer.json"
-    if not path.is_file():
-        raise FileNotFoundError(
-            f"Symbolic tokenizer missing at {path}. Run: python tokenizer/train_tokenizer.py"
-        )
-    tok = PreTrainedTokenizerFast(tokenizer_file=str(path))
-    if tok.unk_token is None:
-        tok.unk_token = "[UNK]"
-    if tok.pad_token is None:
-        tok.pad_token = "[UNK]"
-    tok.add_special_tokens({"additional_special_tokens": EXTRA_SPECIAL})
-    return tok
-
-
 def load_tokenizer_for_training(root: Path, base_model_name: str) -> Tuple[Any, bool]:
     """
-    Prefer tokenizer/tokenizer.json + specials. On any failure, WARNING and use
-    AutoTokenizer from the base model.
-    Returns (tokenizer, used_symbolic).
+    Always use the tokenizer from the resolved base model.
+    Returns (tokenizer, used_symbolic=False).
     """
-    try:
-        tok = load_symbolic_tokenizer(root)
-        probe = "<INPUT>\nget current time\n<OUTPUT>\n. time.now"
-        tok.encode(probe, add_special_tokens=False)
-        return tok, True
-    except Exception as e:
-        print(
-            f"WARNING: Symbolic tokenizer unusable ({type(e).__name__}: {e}). "
-            f"Falling back to AutoTokenizer from {base_model_name!r}."
-        )
     base_tok = AutoTokenizer.from_pretrained(base_model_name, trust_remote_code=True)
     if base_tok.pad_token is None and base_tok.eos_token is not None:
         base_tok.pad_token = base_tok.eos_token
@@ -77,19 +51,16 @@ def load_causal_lm_with_fallback(primary: str, fallback: str | None) -> Tuple[An
 
 
 def load_tokenizer_for_inference(root: Path, adapter_dir: Path, default_base: str) -> Any:
-    """Prefer tokenizer saved with the adapter; else symbolic; else base."""
+    """Prefer tokenizer saved with the adapter; else fallback to base."""
     try:
         return AutoTokenizer.from_pretrained(str(adapter_dir), trust_remote_code=True)
     except Exception as e:
-        print(f"WARNING: Could not load tokenizer from {adapter_dir} ({e}). Trying symbolic file.")
-    try:
-        return load_symbolic_tokenizer(root)
-    except Exception as e2:
-        print(
-            f"WARNING: Symbolic tokenizer load failed ({e2}). "
-            f"Using AutoTokenizer({default_base!r})."
-        )
-    return AutoTokenizer.from_pretrained(default_base, trust_remote_code=True)
+        print(f"WARNING: Could not load tokenizer from {adapter_dir} ({e}). Using base tokenizer.")
+    tok = AutoTokenizer.from_pretrained(default_base, trust_remote_code=True)
+    if tok.pad_token is None and tok.eos_token is not None:
+        tok.pad_token = tok.eos_token
+    _add_prompt_specials(tok)
+    return tok
 
 
 def read_resolved_base(adapter_dir: Path, default: str) -> str:
