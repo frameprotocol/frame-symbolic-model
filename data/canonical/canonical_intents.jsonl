@@ -1,0 +1,157 @@
+{"intent": ". time.now", "input": "get current time"}
+{"intent": ". time.now", "input": "what time is it"}
+{"intent": ". time.now", "input": "tell me the time"}
+{"intent": ". time.now", "input": "show current time"}
+{"intent": ". time.date", "input": "get current date"}
+{"intent": ". time.date", "input": "what is today date"}
+{"intent": ". time.date", "input": "show today date"}
+{"intent": ". time.timestamp", "input": "get current timestamp"}
+{"intent": ". time.timestamp", "input": "unix timestamp now"}
+{"intent": ". time.timezone :value=\"utc\"", "input": "set timezone to utc"}
+{"intent": ". time.timezone :value=\"pst\"", "input": "set timezone to pst"}
+{"intent": ". time.timezone :value=\"est\"", "input": "set timezone to est"}
+{"intent": ". alarm.set :time=\"07:00\"", "input": "set alarm for 7 am"}
+{"intent": ". alarm.set :time=\"08:30\"", "input": "set alarm for 8:30"}
+{"intent": ". alarm.set :time=\"06:00\"", "input": "wake me up at 6 am"}
+{"intent": ". alarm.list", "input": "show my alarms"}
+{"intent": ". alarm.delete :id=\"1\"", "input": "delete alarm 1"}
+{"intent": ". timer.set :minutes=\"5\"", "input": "set timer for 5 minutes"}
+{"intent": ". timer.set :minutes=\"10\"", "input": "set timer for 10 minutes"}
+{"intent": ". timer.set :minutes=\"30\"", "input": "set timer for 30 minutes"}
+{"intent": ". timer.cancel", "input": "cancel timer"}
+{"intent": ". schedule.today", "input": "what is my schedule today"}
+{"intent": ". schedule.tomorrow", "input": "what is my schedule tomorrow"}
+{"intent": ". memory.store :text=\"hello\"", "input": "store note hello"}
+{"intent": ". memory.store :text=\"remember this\"", "input": "save note remember this"}
+{"intent": ". memory.store :text=\"important\"", "input": "store note important"}
+{"intent": ". memory.store :text=\"meeting at 3pm\"", "input": "save note meeting at 3pm"}
+{"intent": ". memory.store :text=\"call mom\"", "input": "remember to call mom"}
+{"intent": ". memory.read", "input": "read memory"}
+{"intent": ". memory.read", "input": "show stored notes"}
+{"intent": ". memory.read", "input": "what did I save"}
+{"intent": ". memory.read :key=\"name\"", "input": "read my name"}
+{"intent": ". memory.read :key=\"address\"", "input": "read my address"}
+{"intent": ". memory.write :key=\"name\" :value=\"alice\"", "input": "save my name as alice"}
+{"intent": ". memory.write :key=\"name\" :value=\"bob\"", "input": "save my name as bob"}
+{"intent": ". memory.write :key=\"name\" :value=\"kyle\"", "input": "save my name as kyle"}
+{"intent": ". memory.write :key=\"email\" :value=\"test@example.com\"", "input": "save my email as test@example.com"}
+{"intent": ". memory.write :key=\"phone\" :value=\"555-1234\"", "input": "save my phone as 555-1234"}
+{"intent": ". memory.write :key=\"city\" :value=\"tokyo\"", "input": "save my city as tokyo"}
+{"intent": ". memory.write :key=\"city\" :value=\"london\"", "input": "save my city as london"}
+{"intent": ". memory.write :key=\"city\" :value=\"paris\"", "input": "save my city as paris"}
+{"intent": ". memory.delete :key=\"name\"", "input": "delete my name"}
+{"intent": ". memory.delete :key=\"email\"", "input": "delete my email"}
+{"intent": ". memory.list", "input": "list all saved items"}
+{"intent": ". memory.list", "input": "show all memory"}
+{"intent": ". memory.clear", "input": "clear all memory"}
+{"intent": ". payment.send :amount=\"10\" :to=\"alice\"", "input": "send 10 dollars to alice"}
+{"intent": ". payment.send :amount=\"20\" :to=\"bob\"", "input": "send 20 dollars to bob"}
+{"intent": ". payment.send :amount=\"50\" :to=\"charlie\"", "input": "send 50 dollars to charlie"}
+{"intent": ". payment.send :amount=\"100\" :to=\"david\"", "input": "send 100 dollars to david"}
+{"intent": ". payment.send :amount=\"5\" :to=\"eve\"", "input": "pay eve 5 dollars"}
+{"intent": ". payment.send :amount=\"25\" :to=\"frank\"", "input": "transfer 25 to frank"}
+{"intent": ". payment.request :amount=\"10\" :from=\"alice\"", "input": "request 10 dollars from alice"}
+{"intent": ". payment.request :amount=\"50\" :from=\"bob\"", "input": "request 50 dollars from bob"}
+{"intent": ". payment.balance", "input": "check my balance"}
+{"intent": ". payment.balance", "input": "show my balance"}
+{"intent": ". payment.balance", "input": "how much money do I have"}
+{"intent": ". payment.history", "input": "show payment history"}
+{"intent": ". payment.history", "input": "recent transactions"}
+{"intent": ". message.send :text=\"hello\" :to=\"alice\"", "input": "send message to alice saying hello"}
+{"intent": ". message.send :text=\"hi there\" :to=\"bob\"", "input": "text bob hi there"}
+{"intent": ". message.send :text=\"I love you\" :to=\"mom\"", "input": "message mom I love you"}
+{"intent": ". message.send :text=\"call me\" :to=\"dad\"", "input": "text dad call me"}
+{"intent": ". message.read", "input": "read my messages"}
+{"intent": ". message.read", "input": "show messages"}
+{"intent": ". message.read :from=\"alice\"", "input": "read messages from alice"}
+{"intent": ". call.start :to=\"alice\"", "input": "call alice"}
+{"intent": ". call.start :to=\"bob\"", "input": "call bob"}
+{"intent": ". call.start :to=\"mom\"", "input": "call mom"}
+{"intent": ". call.start :to=\"dad\"", "input": "call dad"}
+{"intent": ". call.start :to=\"911\"", "input": "call 911"}
+{"intent": ". call.end", "input": "end call"}
+{"intent": ". call.end", "input": "hang up"}
+{"intent": ". email.send :body=\"hi there\" :subject=\"hello\" :to=\"alice@example.com\"", "input": "email alice@example.com subject hello body hi there"}
+{"intent": ". email.read", "input": "read my emails"}
+{"intent": ". email.read", "input": "check inbox"}
+{"intent": ". notify.send :text=\"reminder\"", "input": "send notification reminder"}
+{"intent": ". notify.send :text=\"meeting soon\"", "input": "notify me meeting soon"}
+{"intent": ". web.request :url=\"https://example.com\"", "input": "fetch example.com"}
+{"intent": ". web.request :url=\"https://example.com\"", "input": "load example.com"}
+{"intent": ". web.request :url=\"https://api.example.com\"", "input": "fetch api.example.com"}
+{"intent": ". web.request :url=\"https://google.com\"", "input": "open google.com"}
+{"intent": ". web.search :query=\"weather\"", "input": "search for weather"}
+{"intent": ". web.search :query=\"news\"", "input": "search for news"}
+{"intent": ". web.search :query=\"restaurants nearby\"", "input": "search for restaurants nearby"}
+{"intent": ". system.status", "input": "system status"}
+{"intent": ". system.status", "input": "check system status"}
+{"intent": ". system.version", "input": "show version"}
+{"intent": ". system.version", "input": "what version is this"}
+{"intent": ". system.help", "input": "help"}
+{"intent": ". system.help", "input": "show help"}
+{"intent": ". system.help", "input": "what can you do"}
+{"intent": ". settings.show", "input": "show settings"}
+{"intent": ". settings.show", "input": "open settings"}
+{"intent": ". settings.volume :level=\"50\"", "input": "set volume to 50"}
+{"intent": ". settings.volume :level=\"100\"", "input": "set volume to max"}
+{"intent": ". settings.volume :level=\"0\"", "input": "mute"}
+{"intent": ". settings.brightness :level=\"50\"", "input": "set brightness to 50"}
+{"intent": ". settings.brightness :level=\"100\"", "input": "max brightness"}
+{"intent": ". settings.language :value=\"english\"", "input": "set language to english"}
+{"intent": ". settings.language :value=\"chinese\"", "input": "set language to chinese"}
+{"intent": ". settings.language :value=\"arabic\"", "input": "set language to arabic"}
+{"intent": ". weather.current", "input": "what is the weather"}
+{"intent": ". weather.current", "input": "current weather"}
+{"intent": ". weather.current", "input": "how is the weather"}
+{"intent": ". weather.current :location=\"tokyo\"", "input": "weather in tokyo"}
+{"intent": ". weather.current :location=\"london\"", "input": "weather in london"}
+{"intent": ". weather.current :location=\"paris\"", "input": "weather in paris"}
+{"intent": ". weather.current :location=\"new york\"", "input": "weather in new york"}
+{"intent": ". weather.forecast", "input": "weather forecast"}
+{"intent": ". weather.forecast", "input": "forecast for this week"}
+{"intent": ". weather.forecast :location=\"tokyo\"", "input": "forecast for tokyo"}
+{"intent": ". calendar.today", "input": "show calendar"}
+{"intent": ". calendar.today", "input": "what is on my calendar"}
+{"intent": ". calendar.add :time=\"15:00\" :title=\"meeting\"", "input": "add meeting at 3pm"}
+{"intent": ". calendar.add :time=\"12:00\" :title=\"lunch\"", "input": "add lunch at noon"}
+{"intent": ". calendar.add :time=\"10:00\" :title=\"call\"", "input": "add call at 10am"}
+{"intent": ". calendar.delete :id=\"1\"", "input": "delete event 1"}
+{"intent": ". calendar.next", "input": "next event"}
+{"intent": ". calendar.next", "input": "what is my next appointment"}
+{"intent": ". music.play", "input": "play music"}
+{"intent": ". music.play", "input": "start music"}
+{"intent": ". music.pause", "input": "pause music"}
+{"intent": ". music.pause", "input": "stop music"}
+{"intent": ". music.next", "input": "next song"}
+{"intent": ". music.next", "input": "skip"}
+{"intent": ". music.previous", "input": "previous song"}
+{"intent": ". music.previous", "input": "go back"}
+{"intent": ". music.play :artist=\"beatles\"", "input": "play beatles"}
+{"intent": ". music.play :song=\"imagine\"", "input": "play imagine"}
+{"intent": ". music.play :genre=\"jazz\"", "input": "play jazz"}
+{"intent": ". music.play :playlist=\"favorites\"", "input": "play my favorites"}
+{"intent": ". navigate.to :destination=\"home\"", "input": "navigate home"}
+{"intent": ". navigate.to :destination=\"work\"", "input": "navigate to work"}
+{"intent": ". navigate.to :destination=\"airport\"", "input": "directions to airport"}
+{"intent": ". navigate.to :destination=\"hospital\"", "input": "directions to hospital"}
+{"intent": ". navigate.eta", "input": "how long to destination"}
+{"intent": ". navigate.eta", "input": "eta"}
+{"intent": ". shopping.add :item=\"milk\"", "input": "add milk to shopping list"}
+{"intent": ". shopping.add :item=\"bread\"", "input": "add bread to shopping list"}
+{"intent": ". shopping.add :item=\"eggs\"", "input": "add eggs to shopping list"}
+{"intent": ". shopping.list", "input": "show shopping list"}
+{"intent": ". shopping.clear", "input": "clear shopping list"}
+{"intent": ". shopping.remove :item=\"milk\"", "input": "remove milk from shopping list"}
+{"intent": ". lights.on", "input": "turn on lights"}
+{"intent": ". lights.on", "input": "lights on"}
+{"intent": ". lights.off", "input": "turn off lights"}
+{"intent": ". lights.off", "input": "lights off"}
+{"intent": ". lights.dim :level=\"50\"", "input": "dim lights to 50"}
+{"intent": ". lights.on :room=\"bedroom\"", "input": "turn on bedroom lights"}
+{"intent": ". lights.off :room=\"kitchen\"", "input": "turn off kitchen lights"}
+{"intent": ". thermostat.set :temp=\"72\"", "input": "set temperature to 72"}
+{"intent": ". thermostat.set :temp=\"68\"", "input": "set temperature to 68"}
+{"intent": ". thermostat.status", "input": "what is the temperature"}
+{"intent": ". time.now ; memory.store :text=\"current_time\"", "input": "get time and save it"}
+{"intent": ". web.request :url=\"https://example.com\" ; memory.store :text=\"result\"", "input": "fetch example.com and save result"}
+{"intent": ". payment.balance ; message.send :text=\"balance checked\" :to=\"alice\"", "input": "check balance and notify alice"}

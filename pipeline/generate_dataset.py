@@ -48,11 +48,11 @@ def main() -> None:
         canon_rows.append({"input": intent, "program": c})
 
     raw_path.write_text(
-        sanitize_text("".join(json.dumps(r, ensure_ascii=True) + "\n" for r in raw_rows)),
+        sanitize_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in raw_rows)),
         encoding="utf-8",
     )
     out_path.write_text(
-        sanitize_text("".join(json.dumps(r, ensure_ascii=True) + "\n" for r in canon_rows)),
+        sanitize_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in canon_rows)),
         encoding="utf-8",
     )
     print(f"Wrote {raw_path} and {out_path} ({len(canon_rows)} rows)")

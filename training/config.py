@@ -8,7 +8,6 @@ _ROOT = Path(__file__).resolve().parents[1]
 
 BASE_MODEL_NAME = "Qwen/Qwen2.5-0.5B"
 BASE_MODEL_FALLBACK = "Qwen/Qwen2.5-1.5B"
-OUTPUT_DIR = _ROOT / "models" / "symbolic-lora"
 BATCH_SIZE = 2
 LEARNING_RATE = 2e-4
 EPOCHS = 1

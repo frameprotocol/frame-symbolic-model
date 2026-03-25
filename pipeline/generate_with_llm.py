@@ -364,11 +364,11 @@ def main() -> None:
         _accumulate_stats(ast, op_counts, arg_patterns)
 
     out_path.write_text(
-        sanitize_text("".join(json.dumps(r, ensure_ascii=True) + "\n" for r in rows)),
+        sanitize_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows)),
         encoding="utf-8",
     )
     reject_path.write_text(
-        sanitize_text("".join(json.dumps(r, ensure_ascii=True) + "\n" for r in rejected)),
+        sanitize_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rejected)),
         encoding="utf-8",
     )
 

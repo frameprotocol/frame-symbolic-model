@@ -18,7 +18,6 @@ from interlang.parser import parse
 from tokenizers import Tokenizer
 
 from tokenizer.corpus import iter_canonical_programs
-from tokenizer.symbolic_pre import prepare_for_tokenizer
 
 _WS = re.compile(r"\s+")
 
@@ -39,8 +38,8 @@ def main() -> None:
     if not programs:
         raise SystemExit("No programs to score")
 
-    prepared = [prepare_for_tokenizer(p) for p in programs]
-    bpe_lens = [len(tokenizer.encode(pr).ids) for pr in prepared]
+    # Use programs directly (canonical interlang) without symbolic pre-tokenization.
+    bpe_lens = [len(tokenizer.encode(p).ids) for p in programs]
     base_lens = [whitespace_token_count(p) for p in programs]
 
     op_len_counts: Counter[int] = Counter()

@@ -1,19 +1,54 @@
-.venv/
-models/
+# Python cache
 __pycache__/
 *.pyc
-data/generated.jsonl
-
-# Other generated / local
 *.pyo
 *.pyd
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Generated datasets (reproducible via scripts)
+data/multilingual/
+data/families/
+data/train.jsonl
+data/*.jsonl
+!data/sample.jsonl
+
+# Model artifacts (large binaries)
+export/*.gguf
+export/merged/
+models/*/adapter/
+models/*/merged/
+models/*/model.gguf
+models/*/checkpoints/
+models/*/*.safetensors
+
+# Keep manifest (core config)
+!models/manifest.json
+
+# Tokenizer artifacts
+tokenizer/tokenizer.json
+
+# Logs and temp files
 *.log
 *.tmp
+*.cache
+
+# OS files
 .DS_Store
-data/raw.jsonl
-data/rejected.jsonl
-data/stats.json
-data/tokenizer_metrics.json
-tokenizer/tokenizer.json
+Thumbs.db
+
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.envrc
+
+# Jupyter
+.ipynb_checkpoints/

@@ -60,6 +60,7 @@ def rebalance_by_primary_op(rows: list[dict[str, str]]) -> list[dict[str, str]]:
 def load_training_records(
     root: Path,
     *,
+    dataset_dir: Path | None = None,
     dedupe_by_program_hash: bool = False,
     rebalance_ops: bool = False,
 ) -> list[dict[str, str]]:
@@ -71,7 +72,7 @@ def load_training_records(
     dedupe_by_program_hash: if True, keep at most one row per canonical program
     (reduces size). Default False so many NL phrases can map to the same op pattern.
     """
-    data_dir = root / "data"
+    data_dir = dataset_dir or (root / "data")
     paths = (data_dir / "canonical.jsonl", data_dir / "generated.jsonl")
     seen_hash: set[str] = set()
     seen_pair: set[tuple[str, str]] = set()

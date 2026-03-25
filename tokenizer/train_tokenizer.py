@@ -11,13 +11,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tokenizers import Regex, Tokenizer
+from tokenizers import Tokenizer
 from tokenizers.models import BPE
-from tokenizers.pre_tokenizers import Split
+from tokenizers.pre_tokenizers import Whitespace
 from tokenizers.trainers import BpeTrainer
 
 from tokenizer.corpus import iter_canonical_programs
-from tokenizer.symbolic_pre import prepare_for_tokenizer
 
 SPECIAL = ["[UNK]", "", ".", ";", ":", "=", "->", "*", "$"]
 DEFAULT_VOCAB = 1024
@@ -40,16 +39,11 @@ def main() -> None:
     if not programs:
         raise SystemExit("No valid programs after canonicalize/validate in data/*.jsonl")
 
-    corpus = [prepare_for_tokenizer(prog) for prog in programs]
+    # Train directly on canonical interlang (no symbolic pre-tokenization).
+    corpus = programs
 
     tokenizer = Tokenizer(BPE(unk_token="[UNK]"))
-    try:
-        from tokenizers.pre_tokenizers import SplitDelimiterBehavior
-
-        delim = SplitDelimiterBehavior.Removed
-    except ImportError:
-        delim = "removed"  # type: ignore[assignment]
-    tokenizer.pre_tokenizer = Split(Regex(r"\x01"), behavior=delim)
+    tokenizer.pre_tokenizer = Whitespace()
 
     trainer = BpeTrainer(
         vocab_size=vocab_size,

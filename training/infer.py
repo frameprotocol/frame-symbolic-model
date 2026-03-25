@@ -20,9 +20,6 @@ from pipeline.canonicalize import canonicalize
 from pipeline.validate import sanitize_text, validate
 from training import config as cfg
 from training.tokenizer_load import load_tokenizer_for_inference, read_resolved_base
-from tokenizer.symbolic_pre import TOK_JOIN
-
-ADAPTER_DIR = ROOT / "models" / "symbolic-lora"
 
 
 def build_prompt(user_text: str) -> str:
@@ -36,9 +33,7 @@ def extract_after_output(decoded_full: str) -> str:
 
 
 def clean_generated_text(text: str) -> str:
-    # Model may emit symbolic pre-tokenization separators; recover plain program text.
-    cleaned = text.replace(TOK_JOIN, " ")
-    cleaned = sanitize_text(cleaned)
+    cleaned = sanitize_text(text)
     cleaned = cleaned.replace("<|endoftext|>", " ")
     cleaned = " ".join(cleaned.split())
     cleaned = re.sub(r':\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*', r':\1=', cleaned)
@@ -46,26 +41,32 @@ def clean_generated_text(text: str) -> str:
     return " ".join(cleaned.split())
 
 
+def _family_adapter_dir(family: str) -> Path:
+    return ROOT / "models" / family / "adapter"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Run symbolic generation (greedy by default)")
     ap.add_argument("input_text", help="Natural language intent")
+    ap.add_argument("--family", required=True, help="Model family id (e.g. english, cjk, arabic, indic)")
     ap.add_argument("--max-tokens", type=int, default=64, dest="max_tokens")
     ap.add_argument("--temperature", type=float, default=0.0)
     args = ap.parse_args()
 
-    adapter_weights = ADAPTER_DIR / "adapter_model.safetensors"
-    adapter_bin = ADAPTER_DIR / "adapter_model.bin"
+    adapter_dir = _family_adapter_dir(args.family)
+    adapter_weights = adapter_dir / "adapter_model.safetensors"
+    adapter_bin = adapter_dir / "adapter_model.bin"
     if not adapter_weights.is_file() and not adapter_bin.is_file():
         raise FileNotFoundError(
-            f"Missing LoRA adapter under {ADAPTER_DIR} (expected adapter_model.safetensors)."
+            f"Missing LoRA adapter under {adapter_dir} (expected adapter_model.safetensors)."
         )
 
-    resolved = read_resolved_base(ADAPTER_DIR, cfg.BASE_MODEL_NAME)
-    tokenizer = load_tokenizer_for_inference(ROOT, ADAPTER_DIR, resolved)
+    resolved = read_resolved_base(adapter_dir, cfg.BASE_MODEL_NAME)
+    tokenizer = load_tokenizer_for_inference(ROOT, adapter_dir, resolved)
 
     base = AutoModelForCausalLM.from_pretrained(resolved, trust_remote_code=True)
     base.resize_token_embeddings(len(tokenizer))
-    model = PeftModel.from_pretrained(base, str(ADAPTER_DIR))
+    model = PeftModel.from_pretrained(base, str(adapter_dir))
     model.eval()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

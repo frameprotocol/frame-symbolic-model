@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Causal LM LoRA: <INPUT> NL <OUTPUT> symbolic program (Qwen + symbolic tokenizer)."""
+"""Causal LM LoRA: <INPUT> NL <OUTPUT> symbolic program (per-family training)."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -28,7 +29,6 @@ from training.tokenizer_load import (
     load_causal_lm_with_fallback,
     load_tokenizer_for_training,
 )
-from tokenizer.symbolic_pre import prepare_for_tokenizer
 
 
 def lora_target_modules(model_name: str) -> tuple[list[str], bool]:
@@ -41,9 +41,8 @@ def lora_target_modules(model_name: str) -> tuple[list[str], bool]:
 
 
 def encode_pair(tokenizer: Any, inp: str, output: str, max_length: int) -> dict[str, torch.Tensor]:
-    pre_out = prepare_for_tokenizer(output)
     prefix = "<INPUT>\n" + inp + "\n<OUTPUT>\n"
-    suffix = pre_out + "\n<|endoftext|>\n"
+    suffix = output + "\n<|endoftext|>\n"
     ids_pre = tokenizer.encode(prefix, add_special_tokens=False)
     ids_suf = tokenizer.encode(suffix, add_special_tokens=False)
     ids = (ids_pre + ids_suf)[:max_length]
@@ -123,17 +122,22 @@ class SymbolicSampleCallback(TrainerCallback):
 
 
 def save_run_config(
-    out_dir: Path,
+    adapter_dir: Path,
+    fam_root: Path,
     *,
     resolved_model: str,
-    used_symbolic_tokenizer: bool,
+    family: str,
+    dataset: str | None,
 ) -> None:
-    payload = {
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    # Training config (detailed, for adapter directory)
+    training_payload = {
+        "FAMILY": family,
+        "DATASET_DIR": dataset,
         "BASE_MODEL_NAME": cfg.BASE_MODEL_NAME,
         "BASE_MODEL_FALLBACK": cfg.BASE_MODEL_FALLBACK,
         "RESOLVED_BASE_MODEL_NAME": resolved_model,
-        "USED_SYMBOLIC_TOKENIZER": used_symbolic_tokenizer,
-        "OUTPUT_DIR": str(cfg.OUTPUT_DIR),
         "BATCH_SIZE": cfg.BATCH_SIZE,
         "LEARNING_RATE": cfg.LEARNING_RATE,
         "EPOCHS": cfg.EPOCHS,
@@ -143,14 +147,42 @@ def save_run_config(
         "LORA_DROPOUT": cfg.LORA_DROPOUT,
         "DEDUPE_BY_PROGRAM_HASH": cfg.DEDUPE_BY_PROGRAM_HASH,
         "REBALANCE_DATASET": cfg.REBALANCE_DATASET,
+        "timestamp": timestamp,
     }
-    (out_dir / "training_config.json").write_text(
-        json.dumps(payload, indent=2) + "\n", encoding="utf-8"
+    (adapter_dir / "training_config.json").write_text(
+        json.dumps(training_payload, indent=2) + "\n", encoding="utf-8"
     )
+
+    # Family-level config (concise, for family root directory)
+    family_config = {
+        "family": family,
+        "base_model": resolved_model,
+        "dataset": dataset,
+        "timestamp": timestamp,
+        "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
+    }
+    (fam_root / "config.json").write_text(
+        json.dumps(family_config, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def _family_paths(family: str) -> tuple[Path, Path]:
+    """
+    Return (adapter_dir, family_root) for models/{family}/adapter.
+    """
+    fam_root = ROOT / "models" / family
+    adapter_dir = fam_root / "adapter"
+    return adapter_dir, fam_root
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--family", required=True, help="Model family id (e.g. english, cjk, arabic, indic)")
+    ap.add_argument(
+        "--dataset",
+        default=None,
+        help="Optional dataset directory override (expects canonical.jsonl and generated.jsonl)",
+    )
     ap.add_argument(
         "--max-steps",
         type=int,
@@ -159,8 +191,12 @@ def main() -> None:
     )
     args = ap.parse_args()
 
+    adapter_dir, fam_root = _family_paths(args.family)
+    dataset_dir = Path(args.dataset).expanduser().resolve() if args.dataset else None
+
     records = load_training_records(
         ROOT,
+        dataset_dir=dataset_dir,
         dedupe_by_program_hash=cfg.DEDUPE_BY_PROGRAM_HASH,
         rebalance_ops=cfg.REBALANCE_DATASET,
     )
@@ -170,7 +206,7 @@ def main() -> None:
     model, resolved = load_causal_lm_with_fallback(
         cfg.BASE_MODEL_NAME, cfg.BASE_MODEL_FALLBACK
     )
-    tokenizer, used_symbolic = load_tokenizer_for_training(ROOT, resolved)
+    tokenizer, _used_symbolic = load_tokenizer_for_training(ROOT, resolved)
 
     model_vocab = None
     try:
@@ -202,9 +238,15 @@ def main() -> None:
     model.to(device)
 
     ds = SymbolicDataset(records, tokenizer, cfg.MAX_LENGTH)
-    out_dir = cfg.OUTPUT_DIR
-    out_dir.mkdir(parents=True, exist_ok=True)
-    save_run_config(out_dir, resolved_model=resolved, used_symbolic_tokenizer=used_symbolic)
+    adapter_dir.mkdir(parents=True, exist_ok=True)
+    (fam_root / "merged").mkdir(parents=True, exist_ok=True)
+    save_run_config(
+        adapter_dir,
+        fam_root,
+        resolved_model=resolved,
+        family=args.family,
+        dataset=str(dataset_dir) if dataset_dir else None,
+    )
 
     n = len(records)
     bs = cfg.BATCH_SIZE
@@ -217,10 +259,13 @@ def main() -> None:
     print(f"Effective steps: {effective_steps} (per_epoch={steps_per_epoch}, epochs={cfg.EPOCHS})")
     print(f"Device: {device}")
     print(f"Base model (resolved): {resolved}")
-    print(f"Tokenizer: {'symbolic tokenizer.json' if used_symbolic else 'AutoTokenizer (base model)'}")
+    print("Tokenizer: AutoTokenizer (base model)")
+    print(f"Family: {args.family}")
+    if dataset_dir:
+        print(f"Dataset dir: {dataset_dir}")
 
     ta_kwargs: dict = dict(
-        output_dir=str(out_dir),
+        output_dir=str(adapter_dir),
         per_device_train_batch_size=cfg.BATCH_SIZE,
         learning_rate=cfg.LEARNING_RATE,
         logging_steps=10,
@@ -244,12 +289,12 @@ def main() -> None:
         callbacks=[sample_cb],
     )
     trainer.train()
-    model.save_pretrained(out_dir)
-    tokenizer.save_pretrained(out_dir)
+    model.save_pretrained(adapter_dir)
+    tokenizer.save_pretrained(adapter_dir)
 
     ex = ds[0]
     print("Example tokenized (first 32 ids):", ex["input_ids"][:32].tolist())
-    print(f"Artifacts: {out_dir}")
+    print(f"Artifacts: {adapter_dir}")
 
 
 if __name__ == "__main__":
