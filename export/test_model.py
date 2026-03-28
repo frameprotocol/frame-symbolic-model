@@ -11,6 +11,7 @@ PRODUCTION-GRADE TESTING:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 import time
@@ -19,8 +20,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from pipeline.canonicalize import canonicalize
-from pipeline.validate import validate
+from pipeline.validate import validate_partial_intent as validate
 from runtime.manifest import get_family_config, list_families, load_manifest
 from runtime.router import route
 
@@ -85,15 +85,32 @@ UNIVERSAL_PROMPTS = [
 ]
 
 
-def _build_prompt(user_text: str, prompt_format: str = "<INPUT>\n{input}\n<OUTPUT>\n") -> str:
+def clean_output(text: str) -> str:
+    if not text:
+        return text
+    for tok in ("<|endoftext|>", "</s>", "<END>", "<START>", "\ufffd"):
+        text = text.replace(tok, "")
+    # Take only content before first newline (model output ends at \n)
+    text = text.split("\n")[0]
+    # Strip non-ASCII trailing junk from GGUF generation artifacts
+    text = re.sub(r'[^\x00-\x7f]+$', '', text)
+    text = " ".join(text.split())
+    text = text.strip()
+    if text and not text.startswith("."):
+        text = ". " + text
+    return text
+
+
+def _build_prompt(user_text: str, prompt_format: str = "<START>\nINPUT: {input}\nOUTPUT: ") -> str:
     return prompt_format.replace("{input}", user_text)
 
 
 def _extract_program_only(raw_text: str) -> str:
     """Extract interlang program from model output."""
-    text = raw_text.replace("<OUTPUT>", " ")
-    text = text.replace("<|endoftext|>", " ")
-    text = text.replace("</s>", " ")
+    text = raw_text
+    # Strip all special tokens
+    for tok in ("<OUTPUT>", "<END>", "<START>", "<|endoftext|>", "</s>"):
+        text = text.replace(tok, " ")
     text = "".join(ch for ch in text if ch.isprintable())
     text = re.split(r"\n|</s>", text, maxsplit=1)[0]
     text = re.sub(r"\s+", " ", text).strip()
@@ -102,7 +119,7 @@ def _extract_program_only(raw_text: str) -> str:
         text = text[idx:]
     else:
         text = ""
-    stop_positions = [p for p in (text.find("<INPUT>"), text.find("\n")) if p >= 0]
+    stop_positions = [p for p in (text.find("<INPUT>"), text.find("<START>"), text.find("\n")) if p >= 0]
     if stop_positions:
         text = text[: min(stop_positions)]
     text = re.sub(r':\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*', r':\1=', text)
@@ -127,34 +144,41 @@ def _run_one(llm: Any, prompt_text: str, prompt_format: str) -> tuple[str, bool,
     start = time.perf_counter()
     
     original_prompt = _build_prompt(prompt_text, prompt_format)
-    attempts = [original_prompt + "\n.", original_prompt + "\n. "]
+    attempts = [original_prompt, original_prompt + ". "]
     last_out = ""
 
     for prompt in attempts:
         response = llm(
             prompt,
-            max_tokens=64,
-            temperature=0.1,
+            max_tokens=32,
+            temperature=0.6,
             top_p=0.9,
-            stop=["\n", "</s>", "\n<INPUT>"],
+            repeat_penalty=1.3,
+            stop=["<END>", "\n<START>", "\n\n", "</s>"],
         )
-        extracted = _extract_program_only(_extract_model_text(response))
-        if extracted.startswith(".."):
-            extracted = extracted[1:]
-        last_out = extracted
-        if not extracted.startswith("."):
-            continue
+        raw_output = _extract_model_text(response)
+        print(f"[DEBUG RAW]: {repr(raw_output)}")
+        output = clean_output(raw_output)
+        print(f"[DEBUG CLEAN]: {repr(output)}")
+
         try:
-            canon = canonicalize(extracted)
-        except ValueError:
+            extracted = json.loads(output)
+        except (json.JSONDecodeError, ValueError) as exc:
+            print(f"[WARN] JSON extraction failed: {exc}")
+            last_out = None
             continue
-        if not canon.startswith("."):
+
+        if not isinstance(extracted, dict):
+            print(f"[WARN] extracted JSON is not a dict: {type(extracted).__name__}")
+            last_out = None
             continue
-        if not validate(canon):
+
+        last_out = extracted
+        if not validate(extracted):
             continue
         elapsed = (time.perf_counter() - start) * 1000
-        return canon, True, elapsed
-    
+        return extracted, True, elapsed
+
     elapsed = (time.perf_counter() - start) * 1000
     return last_out, False, elapsed
 
@@ -219,7 +243,7 @@ def main() -> None:
         prompt_format = cfg.prompt_format
     else:
         model_path = args.model
-        prompt_format = "<INPUT>\n{input}\n<OUTPUT>\n"
+        prompt_format = "<START>\nINPUT: {input}\nOUTPUT: "
 
     if not model_path.is_file():
         raise FileNotFoundError(

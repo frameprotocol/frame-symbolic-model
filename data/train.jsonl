@@ -1,0 +1,475 @@
+{"input": "get current time", "output": ". time.now"}
+{"input": "what time is it", "output": ". time.now"}
+{"input": "tell me the time", "output": ". time.now"}
+{"input": "show the time", "output": ". time.now"}
+{"input": "current time please", "output": ". time.now"}
+{"input": "what's the time", "output": ". time.now"}
+{"input": "time now", "output": ". time.now"}
+{"input": "show time", "output": ". time.now"}
+{"input": "time please", "output": ". time.now"}
+{"input": "show current time", "output": ". time.now"}
+{"input": "get current date", "output": ". time.date"}
+{"input": "what is today's date", "output": ". time.date"}
+{"input": "show date", "output": ". time.date"}
+{"input": "tell me the date", "output": ". time.date"}
+{"input": "what date is it", "output": ". time.date"}
+{"input": "today's date", "output": ". time.date"}
+{"input": "what is today date", "output": ". time.date"}
+{"input": "show today date", "output": ". time.date"}
+{"input": "get current timestamp", "output": ". time.timestamp"}
+{"input": "unix timestamp now", "output": ". time.timestamp"}
+{"input": "set timezone to utc", "output": ". time.timezone :value=\"utc\""}
+{"input": "set timezone to pst", "output": ". time.timezone :value=\"pst\""}
+{"input": "set timezone to est", "output": ". time.timezone :value=\"est\""}
+{"input": "set alarm for 7 am", "output": ". alarm.set :time=\"07:00\""}
+{"input": "wake me up at 7 am", "output": ". alarm.set :time=\"07:00\""}
+{"input": "alarm at 7 am", "output": ". alarm.set :time=\"07:00\""}
+{"input": "set alarm at 7 am", "output": ". alarm.set :time=\"07:00\""}
+{"input": "alarm for 7 am", "output": ". alarm.set :time=\"07:00\""}
+{"input": "set alarm for 8:30", "output": ". alarm.set :time=\"08:30\""}
+{"input": "wake me up at 8:30", "output": ". alarm.set :time=\"08:30\""}
+{"input": "alarm at 8:30", "output": ". alarm.set :time=\"08:30\""}
+{"input": "set alarm at 8:30", "output": ". alarm.set :time=\"08:30\""}
+{"input": "alarm for 8:30", "output": ". alarm.set :time=\"08:30\""}
+{"input": "wake me up at 6 am", "output": ". alarm.set :time=\"06:00\""}
+{"input": "set alarm for 6 am", "output": ". alarm.set :time=\"06:00\""}
+{"input": "alarm at 6 am", "output": ". alarm.set :time=\"06:00\""}
+{"input": "alarm for 6 am", "output": ". alarm.set :time=\"06:00\""}
+{"input": "show my alarms", "output": ". alarm.list"}
+{"input": "delete alarm 1", "output": ". alarm.delete :id=\"1\""}
+{"input": "set timer for 5 minutes", "output": ". timer.set :minutes=\"5\""}
+{"input": "timer 5 minutes", "output": ". timer.set :minutes=\"5\""}
+{"input": "5 minute timer", "output": ". timer.set :minutes=\"5\""}
+{"input": "count down 5 minutes", "output": ". timer.set :minutes=\"5\""}
+{"input": "start 5 minute timer", "output": ". timer.set :minutes=\"5\""}
+{"input": "set timer for 10 minutes", "output": ". timer.set :minutes=\"10\""}
+{"input": "timer 10 minutes", "output": ". timer.set :minutes=\"10\""}
+{"input": "10 minute timer", "output": ". timer.set :minutes=\"10\""}
+{"input": "count down 10 minutes", "output": ". timer.set :minutes=\"10\""}
+{"input": "start 10 minute timer", "output": ". timer.set :minutes=\"10\""}
+{"input": "set timer for 30 minutes", "output": ". timer.set :minutes=\"30\""}
+{"input": "timer 30 minutes", "output": ". timer.set :minutes=\"30\""}
+{"input": "30 minute timer", "output": ". timer.set :minutes=\"30\""}
+{"input": "count down 30 minutes", "output": ". timer.set :minutes=\"30\""}
+{"input": "start 30 minute timer", "output": ". timer.set :minutes=\"30\""}
+{"input": "cancel timer", "output": ". timer.cancel"}
+{"input": "what is my schedule today", "output": ". schedule.today"}
+{"input": "what is my schedule tomorrow", "output": ". schedule.tomorrow"}
+{"input": "store note hello", "output": ". memory.store :text=\"hello\""}
+{"input": "save note hello", "output": ". memory.store :text=\"hello\""}
+{"input": "remember hello", "output": ". memory.store :text=\"hello\""}
+{"input": "save hello", "output": ". memory.store :text=\"hello\""}
+{"input": "note hello", "output": ". memory.store :text=\"hello\""}
+{"input": "write down hello", "output": ". memory.store :text=\"hello\""}
+{"input": "keep note hello", "output": ". memory.store :text=\"hello\""}
+{"input": "memorize hello", "output": ". memory.store :text=\"hello\""}
+{"input": "save note remember this", "output": ". memory.store :text=\"remember this\""}
+{"input": "store note remember this", "output": ". memory.store :text=\"remember this\""}
+{"input": "remember remember this", "output": ". memory.store :text=\"remember this\""}
+{"input": "note remember this", "output": ". memory.store :text=\"remember this\""}
+{"input": "write down remember this", "output": ". memory.store :text=\"remember this\""}
+{"input": "store note important", "output": ". memory.store :text=\"important\""}
+{"input": "save note important", "output": ". memory.store :text=\"important\""}
+{"input": "remember important", "output": ". memory.store :text=\"important\""}
+{"input": "save important", "output": ". memory.store :text=\"important\""}
+{"input": "note important", "output": ". memory.store :text=\"important\""}
+{"input": "write down important", "output": ". memory.store :text=\"important\""}
+{"input": "keep note important", "output": ". memory.store :text=\"important\""}
+{"input": "memorize important", "output": ". memory.store :text=\"important\""}
+{"input": "save note meeting at 3pm", "output": ". memory.store :text=\"meeting at 3pm\""}
+{"input": "store note meeting at 3pm", "output": ". memory.store :text=\"meeting at 3pm\""}
+{"input": "remember meeting at 3pm", "output": ". memory.store :text=\"meeting at 3pm\""}
+{"input": "note meeting at 3pm", "output": ". memory.store :text=\"meeting at 3pm\""}
+{"input": "write down meeting at 3pm", "output": ". memory.store :text=\"meeting at 3pm\""}
+{"input": "remember to call mom", "output": ". memory.store :text=\"call mom\""}
+{"input": "remind me to call mom", "output": ". memory.store :text=\"call mom\""}
+{"input": "save note call mom", "output": ". memory.store :text=\"call mom\""}
+{"input": "store note call mom", "output": ". memory.store :text=\"call mom\""}
+{"input": "note call mom", "output": ". memory.store :text=\"call mom\""}
+{"input": "read memory", "output": ". memory.read"}
+{"input": "show memory", "output": ". memory.read"}
+{"input": "what did I save", "output": ". memory.read"}
+{"input": "show stored notes", "output": ". memory.read"}
+{"input": "list notes", "output": ". memory.read"}
+{"input": "show notes", "output": ". memory.read"}
+{"input": "what's saved", "output": ". memory.read"}
+{"input": "read my name", "output": ". memory.read :key=\"name\""}
+{"input": "read my address", "output": ". memory.read :key=\"address\""}
+{"input": "save my name as alice", "output": ". memory.write :key=\"name\" :value=\"alice\""}
+{"input": "set my name to alice", "output": ". memory.write :key=\"name\" :value=\"alice\""}
+{"input": "store my name as alice", "output": ". memory.write :key=\"name\" :value=\"alice\""}
+{"input": "remember my name is alice", "output": ". memory.write :key=\"name\" :value=\"alice\""}
+{"input": "my name is alice", "output": ". memory.write :key=\"name\" :value=\"alice\""}
+{"input": "update my name to alice", "output": ". memory.write :key=\"name\" :value=\"alice\""}
+{"input": "save my name as bob", "output": ". memory.write :key=\"name\" :value=\"bob\""}
+{"input": "set my name to bob", "output": ". memory.write :key=\"name\" :value=\"bob\""}
+{"input": "store my name as bob", "output": ". memory.write :key=\"name\" :value=\"bob\""}
+{"input": "remember my name is bob", "output": ". memory.write :key=\"name\" :value=\"bob\""}
+{"input": "my name is bob", "output": ". memory.write :key=\"name\" :value=\"bob\""}
+{"input": "update my name to bob", "output": ". memory.write :key=\"name\" :value=\"bob\""}
+{"input": "save my name as kyle", "output": ". memory.write :key=\"name\" :value=\"kyle\""}
+{"input": "set my name to kyle", "output": ". memory.write :key=\"name\" :value=\"kyle\""}
+{"input": "store my name as kyle", "output": ". memory.write :key=\"name\" :value=\"kyle\""}
+{"input": "remember my name is kyle", "output": ". memory.write :key=\"name\" :value=\"kyle\""}
+{"input": "my name is kyle", "output": ". memory.write :key=\"name\" :value=\"kyle\""}
+{"input": "update my name to kyle", "output": ". memory.write :key=\"name\" :value=\"kyle\""}
+{"input": "save my email as test@example.com", "output": ". memory.write :key=\"email\" :value=\"test@example.com\""}
+{"input": "set my email to test@example.com", "output": ". memory.write :key=\"email\" :value=\"test@example.com\""}
+{"input": "store my email as test@example.com", "output": ". memory.write :key=\"email\" :value=\"test@example.com\""}
+{"input": "remember my email is test@example.com", "output": ". memory.write :key=\"email\" :value=\"test@example.com\""}
+{"input": "my email is test@example.com", "output": ". memory.write :key=\"email\" :value=\"test@example.com\""}
+{"input": "update my email to test@example.com", "output": ". memory.write :key=\"email\" :value=\"test@example.com\""}
+{"input": "save my phone as 555-1234", "output": ". memory.write :key=\"phone\" :value=\"555-1234\""}
+{"input": "set my phone to 555-1234", "output": ". memory.write :key=\"phone\" :value=\"555-1234\""}
+{"input": "store my phone as 555-1234", "output": ". memory.write :key=\"phone\" :value=\"555-1234\""}
+{"input": "remember my phone is 555-1234", "output": ". memory.write :key=\"phone\" :value=\"555-1234\""}
+{"input": "my phone is 555-1234", "output": ". memory.write :key=\"phone\" :value=\"555-1234\""}
+{"input": "update my phone to 555-1234", "output": ". memory.write :key=\"phone\" :value=\"555-1234\""}
+{"input": "save my city as tokyo", "output": ". memory.write :key=\"city\" :value=\"tokyo\""}
+{"input": "set my city to tokyo", "output": ". memory.write :key=\"city\" :value=\"tokyo\""}
+{"input": "store my city as tokyo", "output": ". memory.write :key=\"city\" :value=\"tokyo\""}
+{"input": "remember my city is tokyo", "output": ". memory.write :key=\"city\" :value=\"tokyo\""}
+{"input": "my city is tokyo", "output": ". memory.write :key=\"city\" :value=\"tokyo\""}
+{"input": "update my city to tokyo", "output": ". memory.write :key=\"city\" :value=\"tokyo\""}
+{"input": "save my city as london", "output": ". memory.write :key=\"city\" :value=\"london\""}
+{"input": "set my city to london", "output": ". memory.write :key=\"city\" :value=\"london\""}
+{"input": "store my city as london", "output": ". memory.write :key=\"city\" :value=\"london\""}
+{"input": "remember my city is london", "output": ". memory.write :key=\"city\" :value=\"london\""}
+{"input": "my city is london", "output": ". memory.write :key=\"city\" :value=\"london\""}
+{"input": "update my city to london", "output": ". memory.write :key=\"city\" :value=\"london\""}
+{"input": "save my city as paris", "output": ". memory.write :key=\"city\" :value=\"paris\""}
+{"input": "set my city to paris", "output": ". memory.write :key=\"city\" :value=\"paris\""}
+{"input": "store my city as paris", "output": ". memory.write :key=\"city\" :value=\"paris\""}
+{"input": "remember my city is paris", "output": ". memory.write :key=\"city\" :value=\"paris\""}
+{"input": "my city is paris", "output": ". memory.write :key=\"city\" :value=\"paris\""}
+{"input": "update my city to paris", "output": ". memory.write :key=\"city\" :value=\"paris\""}
+{"input": "delete my name", "output": ". memory.delete :key=\"name\""}
+{"input": "delete my email", "output": ". memory.delete :key=\"email\""}
+{"input": "list all saved items", "output": ". memory.list"}
+{"input": "show all memory", "output": ". memory.list"}
+{"input": "clear all memory", "output": ". memory.clear"}
+{"input": "send 10 dollars to alice", "output": ". payment.send :amount=\"10\" :to=\"alice\""}
+{"input": "pay alice 10 dollars", "output": ". payment.send :amount=\"10\" :to=\"alice\""}
+{"input": "transfer 10 to alice", "output": ". payment.send :amount=\"10\" :to=\"alice\""}
+{"input": "give alice 10 dollars", "output": ". payment.send :amount=\"10\" :to=\"alice\""}
+{"input": "send $10 to alice", "output": ". payment.send :amount=\"10\" :to=\"alice\""}
+{"input": "10 dollars to alice", "output": ". payment.send :amount=\"10\" :to=\"alice\""}
+{"input": "wire 10 to alice", "output": ". payment.send :amount=\"10\" :to=\"alice\""}
+{"input": "pay 10 to alice", "output": ". payment.send :amount=\"10\" :to=\"alice\""}
+{"input": "send 20 dollars to bob", "output": ". payment.send :amount=\"20\" :to=\"bob\""}
+{"input": "pay bob 20 dollars", "output": ". payment.send :amount=\"20\" :to=\"bob\""}
+{"input": "transfer 20 to bob", "output": ". payment.send :amount=\"20\" :to=\"bob\""}
+{"input": "give bob 20 dollars", "output": ". payment.send :amount=\"20\" :to=\"bob\""}
+{"input": "send $20 to bob", "output": ". payment.send :amount=\"20\" :to=\"bob\""}
+{"input": "20 dollars to bob", "output": ". payment.send :amount=\"20\" :to=\"bob\""}
+{"input": "wire 20 to bob", "output": ". payment.send :amount=\"20\" :to=\"bob\""}
+{"input": "pay 20 to bob", "output": ". payment.send :amount=\"20\" :to=\"bob\""}
+{"input": "send 50 dollars to charlie", "output": ". payment.send :amount=\"50\" :to=\"charlie\""}
+{"input": "pay charlie 50 dollars", "output": ". payment.send :amount=\"50\" :to=\"charlie\""}
+{"input": "transfer 50 to charlie", "output": ". payment.send :amount=\"50\" :to=\"charlie\""}
+{"input": "give charlie 50 dollars", "output": ". payment.send :amount=\"50\" :to=\"charlie\""}
+{"input": "send $50 to charlie", "output": ". payment.send :amount=\"50\" :to=\"charlie\""}
+{"input": "50 dollars to charlie", "output": ". payment.send :amount=\"50\" :to=\"charlie\""}
+{"input": "wire 50 to charlie", "output": ". payment.send :amount=\"50\" :to=\"charlie\""}
+{"input": "pay 50 to charlie", "output": ". payment.send :amount=\"50\" :to=\"charlie\""}
+{"input": "send 100 dollars to david", "output": ". payment.send :amount=\"100\" :to=\"david\""}
+{"input": "pay david 100 dollars", "output": ". payment.send :amount=\"100\" :to=\"david\""}
+{"input": "transfer 100 to david", "output": ". payment.send :amount=\"100\" :to=\"david\""}
+{"input": "give david 100 dollars", "output": ". payment.send :amount=\"100\" :to=\"david\""}
+{"input": "send $100 to david", "output": ". payment.send :amount=\"100\" :to=\"david\""}
+{"input": "100 dollars to david", "output": ". payment.send :amount=\"100\" :to=\"david\""}
+{"input": "wire 100 to david", "output": ". payment.send :amount=\"100\" :to=\"david\""}
+{"input": "pay 100 to david", "output": ". payment.send :amount=\"100\" :to=\"david\""}
+{"input": "pay eve 5 dollars", "output": ". payment.send :amount=\"5\" :to=\"eve\""}
+{"input": "send 5 dollars to eve", "output": ". payment.send :amount=\"5\" :to=\"eve\""}
+{"input": "transfer 5 to eve", "output": ". payment.send :amount=\"5\" :to=\"eve\""}
+{"input": "give eve 5 dollars", "output": ". payment.send :amount=\"5\" :to=\"eve\""}
+{"input": "send $5 to eve", "output": ". payment.send :amount=\"5\" :to=\"eve\""}
+{"input": "transfer 25 to frank", "output": ". payment.send :amount=\"25\" :to=\"frank\""}
+{"input": "send 25 dollars to frank", "output": ". payment.send :amount=\"25\" :to=\"frank\""}
+{"input": "pay frank 25 dollars", "output": ". payment.send :amount=\"25\" :to=\"frank\""}
+{"input": "give frank 25", "output": ". payment.send :amount=\"25\" :to=\"frank\""}
+{"input": "wire 25 to frank", "output": ". payment.send :amount=\"25\" :to=\"frank\""}
+{"input": "request 10 dollars from alice", "output": ". payment.request :amount=\"10\" :from=\"alice\""}
+{"input": "ask alice for 10 dollars", "output": ". payment.request :amount=\"10\" :from=\"alice\""}
+{"input": "get 10 from alice", "output": ". payment.request :amount=\"10\" :from=\"alice\""}
+{"input": "collect 10 from alice", "output": ". payment.request :amount=\"10\" :from=\"alice\""}
+{"input": "ask for 10 from alice", "output": ". payment.request :amount=\"10\" :from=\"alice\""}
+{"input": "request 50 dollars from bob", "output": ". payment.request :amount=\"50\" :from=\"bob\""}
+{"input": "ask bob for 50 dollars", "output": ". payment.request :amount=\"50\" :from=\"bob\""}
+{"input": "get 50 from bob", "output": ". payment.request :amount=\"50\" :from=\"bob\""}
+{"input": "collect 50 from bob", "output": ". payment.request :amount=\"50\" :from=\"bob\""}
+{"input": "ask for 50 from bob", "output": ". payment.request :amount=\"50\" :from=\"bob\""}
+{"input": "check my balance", "output": ". payment.balance"}
+{"input": "show my balance", "output": ". payment.balance"}
+{"input": "what's my balance", "output": ". payment.balance"}
+{"input": "how much money do I have", "output": ". payment.balance"}
+{"input": "balance please", "output": ". payment.balance"}
+{"input": "my balance", "output": ". payment.balance"}
+{"input": "show balance", "output": ". payment.balance"}
+{"input": "show payment history", "output": ". payment.history"}
+{"input": "recent transactions", "output": ". payment.history"}
+{"input": "send message to alice saying hello", "output": ". message.send :text=\"hello\" :to=\"alice\""}
+{"input": "text alice hello", "output": ". message.send :text=\"hello\" :to=\"alice\""}
+{"input": "message alice hello", "output": ". message.send :text=\"hello\" :to=\"alice\""}
+{"input": "tell alice hello", "output": ". message.send :text=\"hello\" :to=\"alice\""}
+{"input": "send alice a message saying hello", "output": ". message.send :text=\"hello\" :to=\"alice\""}
+{"input": "text bob hi there", "output": ". message.send :text=\"hi there\" :to=\"bob\""}
+{"input": "send message to bob saying hi there", "output": ". message.send :text=\"hi there\" :to=\"bob\""}
+{"input": "message bob hi there", "output": ". message.send :text=\"hi there\" :to=\"bob\""}
+{"input": "tell bob hi there", "output": ". message.send :text=\"hi there\" :to=\"bob\""}
+{"input": "message mom I love you", "output": ". message.send :text=\"I love you\" :to=\"mom\""}
+{"input": "text mom i love you", "output": ". message.send :text=\"I love you\" :to=\"mom\""}
+{"input": "send message to mom saying i love you", "output": ". message.send :text=\"I love you\" :to=\"mom\""}
+{"input": "tell mom i love you", "output": ". message.send :text=\"I love you\" :to=\"mom\""}
+{"input": "text dad call me", "output": ". message.send :text=\"call me\" :to=\"dad\""}
+{"input": "send message to dad saying call me", "output": ". message.send :text=\"call me\" :to=\"dad\""}
+{"input": "message dad call me", "output": ". message.send :text=\"call me\" :to=\"dad\""}
+{"input": "tell dad call me", "output": ". message.send :text=\"call me\" :to=\"dad\""}
+{"input": "read my messages", "output": ". message.read"}
+{"input": "show messages", "output": ". message.read"}
+{"input": "read messages from alice", "output": ". message.read :from=\"alice\""}
+{"input": "call alice", "output": ". call.start :to=\"alice\""}
+{"input": "phone alice", "output": ". call.start :to=\"alice\""}
+{"input": "dial alice", "output": ". call.start :to=\"alice\""}
+{"input": "ring alice", "output": ". call.start :to=\"alice\""}
+{"input": "call up alice", "output": ". call.start :to=\"alice\""}
+{"input": "make a call to alice", "output": ". call.start :to=\"alice\""}
+{"input": "call bob", "output": ". call.start :to=\"bob\""}
+{"input": "phone bob", "output": ". call.start :to=\"bob\""}
+{"input": "dial bob", "output": ". call.start :to=\"bob\""}
+{"input": "ring bob", "output": ". call.start :to=\"bob\""}
+{"input": "call up bob", "output": ". call.start :to=\"bob\""}
+{"input": "make a call to bob", "output": ". call.start :to=\"bob\""}
+{"input": "call mom", "output": ". call.start :to=\"mom\""}
+{"input": "phone mom", "output": ". call.start :to=\"mom\""}
+{"input": "dial mom", "output": ". call.start :to=\"mom\""}
+{"input": "ring mom", "output": ". call.start :to=\"mom\""}
+{"input": "call up mom", "output": ". call.start :to=\"mom\""}
+{"input": "make a call to mom", "output": ". call.start :to=\"mom\""}
+{"input": "call dad", "output": ". call.start :to=\"dad\""}
+{"input": "phone dad", "output": ". call.start :to=\"dad\""}
+{"input": "dial dad", "output": ". call.start :to=\"dad\""}
+{"input": "ring dad", "output": ". call.start :to=\"dad\""}
+{"input": "call up dad", "output": ". call.start :to=\"dad\""}
+{"input": "make a call to dad", "output": ". call.start :to=\"dad\""}
+{"input": "call 911", "output": ". call.start :to=\"911\""}
+{"input": "phone 911", "output": ". call.start :to=\"911\""}
+{"input": "dial 911", "output": ". call.start :to=\"911\""}
+{"input": "ring 911", "output": ". call.start :to=\"911\""}
+{"input": "call up 911", "output": ". call.start :to=\"911\""}
+{"input": "make a call to 911", "output": ". call.start :to=\"911\""}
+{"input": "end call", "output": ". call.end"}
+{"input": "hang up", "output": ". call.end"}
+{"input": "email alice@example.com subject hello body hi there", "output": ". email.send :body=\"hi there\" :subject=\"hello\" :to=\"alice@example.com\""}
+{"input": "read my emails", "output": ". email.read"}
+{"input": "check inbox", "output": ". email.read"}
+{"input": "send notification reminder", "output": ". notify.send :text=\"reminder\""}
+{"input": "notify me meeting soon", "output": ". notify.send :text=\"meeting soon\""}
+{"input": "fetch example.com", "output": ". web.request :url=\"https://example.com\""}
+{"input": "load example.com", "output": ". web.request :url=\"https://example.com\""}
+{"input": "open example.com", "output": ". web.request :url=\"https://example.com\""}
+{"input": "go to example.com", "output": ". web.request :url=\"https://example.com\""}
+{"input": "get example.com", "output": ". web.request :url=\"https://example.com\""}
+{"input": "fetch api.example.com", "output": ". web.request :url=\"https://api.example.com\""}
+{"input": "load api.example.com", "output": ". web.request :url=\"https://api.example.com\""}
+{"input": "open api.example.com", "output": ". web.request :url=\"https://api.example.com\""}
+{"input": "go to api.example.com", "output": ". web.request :url=\"https://api.example.com\""}
+{"input": "get api.example.com", "output": ". web.request :url=\"https://api.example.com\""}
+{"input": "open google.com", "output": ". web.request :url=\"https://google.com\""}
+{"input": "search for weather", "output": ". web.search :query=\"weather\""}
+{"input": "look up weather", "output": ". web.search :query=\"weather\""}
+{"input": "find weather", "output": ". web.search :query=\"weather\""}
+{"input": "search weather", "output": ". web.search :query=\"weather\""}
+{"input": "google weather", "output": ". web.search :query=\"weather\""}
+{"input": "search for news", "output": ". web.search :query=\"news\""}
+{"input": "look up news", "output": ". web.search :query=\"news\""}
+{"input": "find news", "output": ". web.search :query=\"news\""}
+{"input": "search news", "output": ". web.search :query=\"news\""}
+{"input": "google news", "output": ". web.search :query=\"news\""}
+{"input": "search for restaurants nearby", "output": ". web.search :query=\"restaurants nearby\""}
+{"input": "look up restaurants nearby", "output": ". web.search :query=\"restaurants nearby\""}
+{"input": "find restaurants nearby", "output": ". web.search :query=\"restaurants nearby\""}
+{"input": "search restaurants nearby", "output": ". web.search :query=\"restaurants nearby\""}
+{"input": "google restaurants nearby", "output": ". web.search :query=\"restaurants nearby\""}
+{"input": "system status", "output": ". system.status"}
+{"input": "check system status", "output": ". system.status"}
+{"input": "status", "output": ". system.status"}
+{"input": "how is the system", "output": ". system.status"}
+{"input": "show version", "output": ". system.version"}
+{"input": "version", "output": ". system.version"}
+{"input": "what version", "output": ". system.version"}
+{"input": "version number", "output": ". system.version"}
+{"input": "what version is this", "output": ". system.version"}
+{"input": "help", "output": ". system.help"}
+{"input": "show help", "output": ". system.help"}
+{"input": "what can you do", "output": ". system.help"}
+{"input": "commands", "output": ". system.help"}
+{"input": "help me", "output": ". system.help"}
+{"input": "show settings", "output": ". settings.show"}
+{"input": "open settings", "output": ". settings.show"}
+{"input": "set volume to 50", "output": ". settings.volume :level=\"50\""}
+{"input": "volume 50", "output": ". settings.volume :level=\"50\""}
+{"input": "volume to 50", "output": ". settings.volume :level=\"50\""}
+{"input": "change volume to 50", "output": ". settings.volume :level=\"50\""}
+{"input": "set volume to max", "output": ". settings.volume :level=\"100\""}
+{"input": "mute", "output": ". settings.volume :level=\"0\""}
+{"input": "set brightness to 50", "output": ". settings.brightness :level=\"50\""}
+{"input": "brightness 50", "output": ". settings.brightness :level=\"50\""}
+{"input": "brightness to 50", "output": ". settings.brightness :level=\"50\""}
+{"input": "change brightness to 50", "output": ". settings.brightness :level=\"50\""}
+{"input": "max brightness", "output": ". settings.brightness :level=\"100\""}
+{"input": "set language to english", "output": ". settings.language :value=\"english\""}
+{"input": "language english", "output": ". settings.language :value=\"english\""}
+{"input": "change language to english", "output": ". settings.language :value=\"english\""}
+{"input": "switch to english", "output": ". settings.language :value=\"english\""}
+{"input": "set language to chinese", "output": ". settings.language :value=\"chinese\""}
+{"input": "language chinese", "output": ". settings.language :value=\"chinese\""}
+{"input": "change language to chinese", "output": ". settings.language :value=\"chinese\""}
+{"input": "switch to chinese", "output": ". settings.language :value=\"chinese\""}
+{"input": "set language to arabic", "output": ". settings.language :value=\"arabic\""}
+{"input": "language arabic", "output": ". settings.language :value=\"arabic\""}
+{"input": "change language to arabic", "output": ". settings.language :value=\"arabic\""}
+{"input": "switch to arabic", "output": ". settings.language :value=\"arabic\""}
+{"input": "what is the weather", "output": ". weather.current"}
+{"input": "how's the weather", "output": ". weather.current"}
+{"input": "current weather", "output": ". weather.current"}
+{"input": "weather please", "output": ". weather.current"}
+{"input": "show weather", "output": ". weather.current"}
+{"input": "weather now", "output": ". weather.current"}
+{"input": "how is the weather", "output": ". weather.current"}
+{"input": "weather in tokyo", "output": ". weather.current :location=\"tokyo\""}
+{"input": "what's the weather in tokyo", "output": ". weather.current :location=\"tokyo\""}
+{"input": "how's the weather in tokyo", "output": ". weather.current :location=\"tokyo\""}
+{"input": "tokyo weather", "output": ". weather.current :location=\"tokyo\""}
+{"input": "show weather for tokyo", "output": ". weather.current :location=\"tokyo\""}
+{"input": "weather in london", "output": ". weather.current :location=\"london\""}
+{"input": "what's the weather in london", "output": ". weather.current :location=\"london\""}
+{"input": "how's the weather in london", "output": ". weather.current :location=\"london\""}
+{"input": "london weather", "output": ". weather.current :location=\"london\""}
+{"input": "show weather for london", "output": ". weather.current :location=\"london\""}
+{"input": "weather in paris", "output": ". weather.current :location=\"paris\""}
+{"input": "what's the weather in paris", "output": ". weather.current :location=\"paris\""}
+{"input": "how's the weather in paris", "output": ". weather.current :location=\"paris\""}
+{"input": "paris weather", "output": ". weather.current :location=\"paris\""}
+{"input": "show weather for paris", "output": ". weather.current :location=\"paris\""}
+{"input": "weather in new york", "output": ". weather.current :location=\"new york\""}
+{"input": "what's the weather in new york", "output": ". weather.current :location=\"new york\""}
+{"input": "how's the weather in new york", "output": ". weather.current :location=\"new york\""}
+{"input": "new york weather", "output": ". weather.current :location=\"new york\""}
+{"input": "show weather for new york", "output": ". weather.current :location=\"new york\""}
+{"input": "weather forecast", "output": ". weather.forecast"}
+{"input": "forecast for this week", "output": ". weather.forecast"}
+{"input": "forecast for tokyo", "output": ". weather.forecast :location=\"tokyo\""}
+{"input": "show calendar", "output": ". calendar.today"}
+{"input": "what is on my calendar", "output": ". calendar.today"}
+{"input": "add meeting at 3pm", "output": ". calendar.add :time=\"15:00\" :title=\"meeting\""}
+{"input": "schedule meeting at 3pm", "output": ". calendar.add :time=\"15:00\" :title=\"meeting\""}
+{"input": "put meeting on calendar at 3pm", "output": ". calendar.add :time=\"15:00\" :title=\"meeting\""}
+{"input": "create event meeting at 3pm", "output": ". calendar.add :time=\"15:00\" :title=\"meeting\""}
+{"input": "add lunch at noon", "output": ". calendar.add :time=\"12:00\" :title=\"lunch\""}
+{"input": "schedule lunch at noon", "output": ". calendar.add :time=\"12:00\" :title=\"lunch\""}
+{"input": "put lunch on calendar at noon", "output": ". calendar.add :time=\"12:00\" :title=\"lunch\""}
+{"input": "create event lunch at noon", "output": ". calendar.add :time=\"12:00\" :title=\"lunch\""}
+{"input": "add call at 10am", "output": ". calendar.add :time=\"10:00\" :title=\"call\""}
+{"input": "schedule call at 10am", "output": ". calendar.add :time=\"10:00\" :title=\"call\""}
+{"input": "put call on calendar at 10am", "output": ". calendar.add :time=\"10:00\" :title=\"call\""}
+{"input": "create event call at 10am", "output": ". calendar.add :time=\"10:00\" :title=\"call\""}
+{"input": "delete event 1", "output": ". calendar.delete :id=\"1\""}
+{"input": "next event", "output": ". calendar.next"}
+{"input": "what is my next appointment", "output": ". calendar.next"}
+{"input": "play music", "output": ". music.play"}
+{"input": "start music", "output": ". music.play"}
+{"input": "music please", "output": ". music.play"}
+{"input": "play some music", "output": ". music.play"}
+{"input": "start playing", "output": ". music.play"}
+{"input": "put on music", "output": ". music.play"}
+{"input": "pause music", "output": ". music.pause"}
+{"input": "stop music", "output": ". music.pause"}
+{"input": "pause", "output": ". music.pause"}
+{"input": "stop playing", "output": ". music.pause"}
+{"input": "next song", "output": ". music.next"}
+{"input": "skip", "output": ". music.next"}
+{"input": "next track", "output": ". music.next"}
+{"input": "skip song", "output": ". music.next"}
+{"input": "play next", "output": ". music.next"}
+{"input": "previous song", "output": ". music.previous"}
+{"input": "go back", "output": ". music.previous"}
+{"input": "previous track", "output": ". music.previous"}
+{"input": "last song", "output": ". music.previous"}
+{"input": "play previous", "output": ". music.previous"}
+{"input": "play beatles", "output": ". music.play :artist=\"beatles\""}
+{"input": "play some beatles", "output": ". music.play :artist=\"beatles\""}
+{"input": "start beatles", "output": ". music.play :artist=\"beatles\""}
+{"input": "put on beatles", "output": ". music.play :artist=\"beatles\""}
+{"input": "play imagine", "output": ". music.play :song=\"imagine\""}
+{"input": "play some imagine", "output": ". music.play :song=\"imagine\""}
+{"input": "start imagine", "output": ". music.play :song=\"imagine\""}
+{"input": "put on imagine", "output": ". music.play :song=\"imagine\""}
+{"input": "play jazz", "output": ". music.play :genre=\"jazz\""}
+{"input": "play some jazz", "output": ". music.play :genre=\"jazz\""}
+{"input": "start jazz", "output": ". music.play :genre=\"jazz\""}
+{"input": "put on jazz", "output": ". music.play :genre=\"jazz\""}
+{"input": "play my favorites", "output": ". music.play :playlist=\"favorites\""}
+{"input": "navigate home", "output": ". navigate.to :destination=\"home\""}
+{"input": "navigate to work", "output": ". navigate.to :destination=\"work\""}
+{"input": "directions to work", "output": ". navigate.to :destination=\"work\""}
+{"input": "take me to work", "output": ". navigate.to :destination=\"work\""}
+{"input": "go to work", "output": ". navigate.to :destination=\"work\""}
+{"input": "route to work", "output": ". navigate.to :destination=\"work\""}
+{"input": "directions to airport", "output": ". navigate.to :destination=\"airport\""}
+{"input": "navigate to airport", "output": ". navigate.to :destination=\"airport\""}
+{"input": "how do I get to airport", "output": ". navigate.to :destination=\"airport\""}
+{"input": "take me to airport", "output": ". navigate.to :destination=\"airport\""}
+{"input": "directions to hospital", "output": ". navigate.to :destination=\"hospital\""}
+{"input": "navigate to hospital", "output": ". navigate.to :destination=\"hospital\""}
+{"input": "how do I get to hospital", "output": ". navigate.to :destination=\"hospital\""}
+{"input": "take me to hospital", "output": ". navigate.to :destination=\"hospital\""}
+{"input": "how long to destination", "output": ". navigate.eta"}
+{"input": "eta", "output": ". navigate.eta"}
+{"input": "add milk to shopping list", "output": ". shopping.add :item=\"milk\""}
+{"input": "put milk on shopping list", "output": ". shopping.add :item=\"milk\""}
+{"input": "add milk to my list", "output": ". shopping.add :item=\"milk\""}
+{"input": "shopping list add milk", "output": ". shopping.add :item=\"milk\""}
+{"input": "add bread to shopping list", "output": ". shopping.add :item=\"bread\""}
+{"input": "put bread on shopping list", "output": ". shopping.add :item=\"bread\""}
+{"input": "add bread to my list", "output": ". shopping.add :item=\"bread\""}
+{"input": "shopping list add bread", "output": ". shopping.add :item=\"bread\""}
+{"input": "add eggs to shopping list", "output": ". shopping.add :item=\"eggs\""}
+{"input": "put eggs on shopping list", "output": ". shopping.add :item=\"eggs\""}
+{"input": "add eggs to my list", "output": ". shopping.add :item=\"eggs\""}
+{"input": "shopping list add eggs", "output": ". shopping.add :item=\"eggs\""}
+{"input": "show shopping list", "output": ". shopping.list"}
+{"input": "clear shopping list", "output": ". shopping.clear"}
+{"input": "remove milk from shopping list", "output": ". shopping.remove :item=\"milk\""}
+{"input": "turn on lights", "output": ". lights.on"}
+{"input": "lights on", "output": ". lights.on"}
+{"input": "switch on lights", "output": ". lights.on"}
+{"input": "enable lights", "output": ". lights.on"}
+{"input": "turn off lights", "output": ". lights.off"}
+{"input": "lights off", "output": ". lights.off"}
+{"input": "switch off lights", "output": ". lights.off"}
+{"input": "disable lights", "output": ". lights.off"}
+{"input": "dim lights to 50", "output": ". lights.dim :level=\"50\""}
+{"input": "turn on bedroom lights", "output": ". lights.on :room=\"bedroom\""}
+{"input": "bedroom lights on", "output": ". lights.on :room=\"bedroom\""}
+{"input": "switch on bedroom lights", "output": ". lights.on :room=\"bedroom\""}
+{"input": "turn off kitchen lights", "output": ". lights.off :room=\"kitchen\""}
+{"input": "kitchen lights off", "output": ". lights.off :room=\"kitchen\""}
+{"input": "switch off kitchen lights", "output": ". lights.off :room=\"kitchen\""}
+{"input": "set temperature to 72", "output": ". thermostat.set :temp=\"72\""}
+{"input": "temperature 72", "output": ". thermostat.set :temp=\"72\""}
+{"input": "thermostat to 72", "output": ". thermostat.set :temp=\"72\""}
+{"input": "change temperature to 72", "output": ". thermostat.set :temp=\"72\""}
+{"input": "set temperature to 68", "output": ". thermostat.set :temp=\"68\""}
+{"input": "temperature 68", "output": ". thermostat.set :temp=\"68\""}
+{"input": "thermostat to 68", "output": ". thermostat.set :temp=\"68\""}
+{"input": "change temperature to 68", "output": ". thermostat.set :temp=\"68\""}
+{"input": "what is the temperature", "output": ". thermostat.status"}
+{"input": "get time and save it", "output": ". time.now ; memory.store :text=\"current_time\""}
+{"input": "fetch example.com and save result", "output": ". web.request :url=\"https://example.com\" ; memory.store :text=\"result\""}
+{"input": "load example.com and save result", "output": ". web.request :url=\"https://example.com\" ; memory.store :text=\"result\""}
+{"input": "open example.com and save result", "output": ". web.request :url=\"https://example.com\" ; memory.store :text=\"result\""}
+{"input": "go to example.com and save result", "output": ". web.request :url=\"https://example.com\" ; memory.store :text=\"result\""}
+{"input": "get example.com and save result", "output": ". web.request :url=\"https://example.com\" ; memory.store :text=\"result\""}
+{"input": "check balance and notify alice", "output": ". payment.balance ; message.send :text=\"balance checked\" :to=\"alice\""}

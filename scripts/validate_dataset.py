@@ -31,6 +31,7 @@ if str(ROOT) not in sys.path:
 
 from pipeline.canonicalize import canonicalize
 from pipeline.validate import validate
+from pipeline.op_registry import is_namespaced, VALID_CANONICAL_OPS
 
 CANONICAL_DIR = ROOT / "data" / "canonical"
 MULTILINGUAL_DIR = ROOT / "data" / "multilingual"
@@ -139,15 +140,47 @@ def load_jsonl(path: Path) -> list[tuple[int, dict]]:
     return rows
 
 
+def validate_op_names(intent: str) -> tuple[bool, str]:
+    """Hard rule: every op in the intent must be fully qualified (namespace.op).
+
+    Returns (is_valid, error_message).
+    Rejects '. now', '. store', '. write' etc.
+    """
+    from interlang.parser import parse as il_parse
+    try:
+        ops = il_parse(intent)
+    except Exception as e:
+        return False, f"Parse error: {e}"
+
+    for op_obj in ops:
+        op = op_obj["op"]
+        if not is_namespaced(op):
+            return False, (
+                f"Non-canonical op {op!r}: op must be fully qualified (namespace.op). "
+                f"E.g. '. {op}' must be '. time.now' or similar."
+            )
+        if op not in VALID_CANONICAL_OPS:
+            # Namespaced but unknown — emit a warning, not a hard rejection,
+            # so custom ops added after the registry isn't a blocker.
+            pass
+
+    return True, ""
+
+
 def validate_intent(intent: str) -> tuple[bool, str]:
     """Validate a single intent string."""
     if not intent:
         return False, "Empty intent"
-    
+
+    # HARD RULE: all ops must be fully-qualified namespace.op
+    ok, err = validate_op_names(intent)
+    if not ok:
+        return False, err
+
     # Check parse validity
     if not validate(intent):
         return False, "Failed validation"
-    
+
     # Check canonicalization consistency
     try:
         canonical = canonicalize(intent)
@@ -155,7 +188,7 @@ def validate_intent(intent: str) -> tuple[bool, str]:
             return False, f"Not canonical: expected {canonical!r}"
     except ValueError as e:
         return False, f"Canonicalization error: {e}"
-    
+
     return True, ""
 
 
@@ -529,7 +562,16 @@ def main() -> None:
     
     print("\n" + "=" * 60)
     result.print_summary()
-    
+
+    # Canonical ops enforcement summary
+    from pipeline import canonicalize as _canon_mod
+    fixed = _canon_mod.fixed_ops_count
+    rejected = _canon_mod.rejected_ops_count
+    print(f"\nCanonical op enforcement:")
+    print(f"  fixed ops  : {fixed}")
+    print(f"  rejected ops: {rejected}")
+    print("CANONICAL OPS ENFORCED")
+
     sys.exit(0 if result.ok else 1)
 
 

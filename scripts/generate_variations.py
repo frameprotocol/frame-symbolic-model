@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pipeline.op_registry import is_namespaced  # noqa: E402
+
 CANONICAL_DIR = ROOT / "data" / "canonical"
 
 # =============================================================================
@@ -388,11 +390,21 @@ def main() -> None:
     
     # Generate variations
     expanded: list[dict] = []
+    non_canonical_warned: set[str] = set()
     for row in rows:
         intent = row["intent"]
         base_input = row["input"]
+
+        # Debug: warn if intent contains a non-namespaced op
+        for token in intent.split():
+            if token in (".", ";", "->") or token.startswith(":") or "=" in token:
+                continue
+            if not is_namespaced(token) and token not in non_canonical_warned:
+                print(f"WARNING: non-canonical op in intent: {token!r} (intent={intent!r})")
+                non_canonical_warned.add(token)
+
         variations = generate_variations(base_input)
-        
+
         for var in variations:
             expanded.append({
                 "intent": intent,

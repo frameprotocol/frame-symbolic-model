@@ -7,8 +7,9 @@ import argparse
 import json
 from pathlib import Path
 
+import torch
 from peft import PeftModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedTokenizerFast
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -45,17 +46,28 @@ def _load_tokenizer(base_name: str, adapter_dir: Path) -> AutoTokenizer:
 def main() -> None:
     ap = argparse.ArgumentParser(description="Merge LoRA adapter into a full HF checkpoint (per family)")
     ap.add_argument("--family", required=True, help="Model family id (e.g. english, cjk, arabic, indic)")
+    ap.add_argument("--input", default=None)
     args = ap.parse_args()
 
-    adapter_dir, training_config, merged_dir = _family_dirs(args.family)
+    _, training_config, merged_dir = _family_dirs(args.family)
+    adapter_dir = Path(args.input) if args.input else ROOT / "models" / args.family / "adapter"
     base_name = _read_base_model_name(training_config)
     if not adapter_dir.is_dir():
         raise FileNotFoundError(f"Missing adapter directory: {adapter_dir}")
 
     print(f"Loading base model: {base_name}")
-    base = AutoModelForCausalLM.from_pretrained(base_name, trust_remote_code=True)
     tokenizer = _load_tokenizer(base_name, adapter_dir)
-    base.resize_token_embeddings(len(tokenizer))
+    base = AutoModelForCausalLM.from_pretrained(
+        base_name,
+        torch_dtype=torch.float16,
+        trust_remote_code=True,
+    )
+    # Resize embeddings to match tokenizer (may differ after special token additions)
+    model_vocab = base.get_input_embeddings().num_embeddings
+    tok_vocab = len(tokenizer)
+    if tok_vocab != model_vocab:
+        print(f"Resizing embeddings: {model_vocab} -> {tok_vocab}")
+    base.resize_token_embeddings(tok_vocab)
 
     print(f"Loading LoRA adapter: {adapter_dir}")
     peft_model = PeftModel.from_pretrained(base, str(adapter_dir))

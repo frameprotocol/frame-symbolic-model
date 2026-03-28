@@ -1241,7 +1241,11 @@ class TextModel(ModelBase):
     #       do not modify it manually!
     # ref:  https://github.com/ggml-org/llama.cpp/pull/6920
     # Marker: Start get_vocab_base_pre
-    def get_vocab_base_pre(self, tokenizer) -> str:
+    def get_vocab_base_pre(self, tokenizer):
+        # Interlang tokenizer → no standard pre-tokenizer
+        return None
+
+    def _get_vocab_base_pre_original(self, tokenizer) -> str:
         # encoding this string and hashing the resulting tokens would (hopefully) give us a unique identifier that
         # is specific for the BPE pre-tokenizer used by the model
         # we will use this unique identifier to write a "tokenizer.ggml.pre" entry in the GGUF file which we can
@@ -1517,7 +1521,7 @@ class TextModel(ModelBase):
             logger.warning(f"** chkhsh:  {chkhsh}")
             logger.warning("**************************************************************************************")
             logger.warning("\n")
-            raise NotImplementedError("BPE pre-tokenizer was not recognized - update get_vocab_base_pre()")
+            return None
 
         logger.debug(f"tokenizer.ggml.pre: {repr(res)}")
         logger.debug(f"chkhsh: {chkhsh}")

@@ -23,6 +23,7 @@ if str(ROOT) not in sys.path:
 
 from pipeline.canonicalize import canonicalize
 from pipeline.validate import validate
+from pipeline.op_registry import is_namespaced
 
 OUTPUT_DIR = ROOT / "data" / "canonical"
 
@@ -108,7 +109,22 @@ CANONICAL_INTENTS: list[tuple[str, str]] = [
     # COMMUNICATION OPERATIONS
     # -------------------------------------------------------------------------
     ('. message.send :to="alice" :text="hello"', 'send message to alice saying hello'),
+    ('. message.send :to="alice" :text="hello"', 'text alice hello'),
+    ('. message.send :to="alice" :text="hello"', 'message alice hello'),
+    ('. message.send :to="alice" :text="hello"', 'send hello to alice'),
+    ('. message.send :to="alice" :text="hi"', 'text alice hi'),
+    ('. message.send :to="alice" :text="ok"', 'text alice ok'),
+    ('. message.send :to="alice" :text="thanks"', 'text alice thanks'),
+    ('. message.send :to="bob" :text="hello"', 'text bob hello'),
+    ('. message.send :to="bob" :text="hi"', 'text bob hi'),
     ('. message.send :to="bob" :text="hi there"', 'text bob hi there'),
+    ('. message.send :to="bob" :text="ok"', 'message bob ok'),
+    ('. message.send :to="john" :text="hello"', 'text john hello'),
+    ('. message.send :to="john" :text="hi"', 'message john hi'),
+    ('. message.send :to="emma" :text="hello"', 'text emma hello'),
+    ('. message.send :to="emma" :text="hi"', 'message emma hi'),
+    ('. message.send :to="alice" :text="hello"', 'tell alice hello'),
+    ('. message.send :to="bob" :text="hey"', 'tell bob hey'),
     ('. message.send :to="mom" :text="I love you"', 'message mom I love you'),
     ('. message.send :to="dad" :text="call me"', 'text dad call me'),
     ('. message.read', 'read my messages'),
@@ -251,13 +267,22 @@ def generate_canonical_dataset() -> list[dict[str, str]]:
     seen_pairs: set[tuple[str, str]] = set()
     
     for intent, english_input in CANONICAL_INTENTS:
-        # Canonicalize the intent
+        # Warn early if any op in the raw intent is not namespaced
+        for token in intent.split():
+            if token == "." or token.startswith(":") or "=" in token:
+                continue
+            if token in (";", "->"):
+                continue
+            if not is_namespaced(token):
+                print(f"WARNING: non-canonical op detected in source: {token!r} in {intent!r}")
+
+        # Canonicalize the intent (auto-fixes short op names via registry)
         try:
             canonical_intent = canonicalize(intent)
         except ValueError as e:
             print(f"WARNING: Failed to canonicalize {intent!r}: {e}")
             continue
-        
+
         # Validate
         if not validate(canonical_intent):
             print(f"WARNING: Invalid intent: {canonical_intent!r}")

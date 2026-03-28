@@ -6,7 +6,7 @@ The MODEL never outputs 'missing'. This function is called by the runtime
 
 from __future__ import annotations
 
-from pipeline.op_registry import OPS
+from op_registry import OPS
 
 
 def validate_partial_intent(cmd: dict) -> dict:

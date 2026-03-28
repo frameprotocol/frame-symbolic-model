@@ -1,98 +1,62 @@
-"""Load NL → canonical program pairs for supervised training."""
+"""Load NL → JSON intent pairs for supervised training.
+
+Training target format (model output):
+    {"intent": "message.send", "params": {"to": "alice", "text": "hello"}}
+
+No DSL. No "missing" field. Strict JSON only.
+"""
 
 from __future__ import annotations
 
-from collections import Counter, defaultdict
+import json
 from pathlib import Path
 
-from interlang.parser import parse
-from pipeline.hash import hash_program
-from tokenizer.corpus import iter_valid_rows
 
-# No single primary op may exceed this share (post-trim).
-_MAX_PRIMARY_OP_SHARE = 0.40
-_MIN_ROWS_REBALANCE = 12
+def load_family_dataset(root: Path, family: str) -> list[dict[str, str]]:
+    """Load training pairs from data/distill_{family}.jsonl.
 
-
-def ensure_dot_prefix(program: str) -> str:
-    """Training targets must start like '. op' (anchor generation)."""
-    p = program.strip()
-    if not p:
-        return p
-    if p.startswith("."):
-        return p
-    return ". " + p
-
-
-def primary_op(program: str) -> str:
-    ops = parse(program)
-    return ops[0]["op"] if ops else ""
-
-
-def rebalance_by_primary_op(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    Each line must have {"input": ..., "output": {"intent": ..., "params": {...}}}.
+    Returns list of {"input": str, "output": str} where output is a JSON string.
     """
-    Round-robin merge by primary op (deterministic), then greedy keep while
-    no primary exceeds 40% of kept size.
-    """
-    if len(rows) < _MIN_ROWS_REBALANCE:
-        return rows
-    buckets: dict[str, list[dict[str, str]]] = defaultdict(list)
-    for r in sorted(rows, key=lambda x: x["input"]):
-        buckets[primary_op(r["output"])].append(r)
-    op_keys = sorted(buckets.keys())
-    merged: list[dict[str, str]] = []
-    while any(buckets[k] for k in op_keys):
-        for k in op_keys:
-            if buckets[k]:
-                merged.append(buckets[k].pop(0))
+    path = root / "data" / f"distill_{family}.jsonl"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Dataset not found: {path}\n"
+            f"Run: python scripts/convert_families_to_distill.py {family}"
+        )
 
-    kept: list[dict[str, str]] = []
-    counts: Counter[str] = Counter()
-    for r in merged:
-        op = primary_op(r["output"])
-        n2 = len(kept) + 1
-        if n2 <= _MIN_ROWS_REBALANCE or (counts[op] + 1) / n2 <= _MAX_PRIMARY_OP_SHARE + 1e-12:
-            kept.append(r)
-            counts[op] += 1
-    return kept
-
-
-def load_training_records(
-    root: Path,
-    *,
-    dataset_dir: Path | None = None,
-    dedupe_by_program_hash: bool = False,
-    rebalance_ops: bool = False,
-) -> list[dict[str, str]]:
-    """
-    Load canonical.jsonl + generated.jsonl.
-    Each row: canonicalize program, validate, skip invalid.
-    Output: {"input": ..., "output": canonical_program} with '.' anchor.
-
-    dedupe_by_program_hash: if True, keep at most one row per canonical program
-    (reduces size). Default False so many NL phrases can map to the same op pattern.
-    """
-    data_dir = dataset_dir or (root / "data")
-    paths = (data_dir / "canonical.jsonl", data_dir / "generated.jsonl")
-    seen_hash: set[str] = set()
-    seen_pair: set[tuple[str, str]] = set()
     rows: list[dict[str, str]] = []
-    for inp, canon in iter_valid_rows(*paths):
-        out = ensure_dot_prefix(canon)
-        if dedupe_by_program_hash:
+    skipped = 0
+
+    with path.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
             try:
-                h = hash_program(parse(out))
-            except ValueError:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                skipped += 1
                 continue
-            if h in seen_hash:
+
+            inp = record.get("input", "")
+            out = record.get("output", {})
+
+            if not inp or not isinstance(out, dict):
+                skipped += 1
                 continue
-            seen_hash.add(h)
-        else:
-            key = (inp, out)
-            if key in seen_pair:
+            if "intent" not in out or "params" not in out:
+                skipped += 1
                 continue
-            seen_pair.add(key)
-        rows.append({"input": inp, "output": out})
-    if rebalance_ops:
-        rows = rebalance_by_primary_op(rows)
+
+            # Strip any runtime fields (e.g. "missing") before storing as training target
+            model_output = {"intent": out["intent"], "params": out["params"]}
+            rows.append({"input": inp, "output": json.dumps(model_output, ensure_ascii=False)})
+
+    print(f"[{family}] Dataset loaded: {len(rows)} samples (skipped {skipped})")
     return rows
+
+
+def load_english_dataset(root: Path) -> list[dict[str, str]]:
+    """Alias for load_family_dataset(root, 'english')."""
+    return load_family_dataset(root, "english")

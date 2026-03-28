@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-DEFAULT_PROMPT_FORMAT = "<INPUT>\n{input}\n<OUTPUT>\n"
+DEFAULT_PROMPT_FORMAT = "<START>\nINPUT: {input}\nOUTPUT: "
 MANIFEST_VERSION = "1.0"
 
 

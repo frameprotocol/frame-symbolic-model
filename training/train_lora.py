@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Causal LM LoRA: <INPUT> NL <OUTPUT> symbolic program (per-family training)."""
+"""Causal LM LoRA: <START> INPUT: NL OUTPUT: symbolic program <END> (per-family training)."""
 
 from __future__ import annotations
 
@@ -18,13 +18,14 @@ from transformers import (
     TrainerCallback,
     default_data_collator,
 )
+import torch.nn.functional as F
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from training import config as cfg
-from training.dataset import load_training_records
+from training.dataset import load_family_dataset
 from training.tokenizer_load import (
     load_causal_lm_with_fallback,
     load_tokenizer_for_training,
@@ -35,16 +36,23 @@ def lora_target_modules(model_name: str) -> tuple[list[str], bool]:
     m = model_name.lower()
     if "gpt2" in m or "distilgpt" in m:
         return (["c_attn", "c_proj"], True)
+    if "pruned_base" in m:
+        # Pruned model needs aggressive adaptation — include MLP layers
+        return (["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"], False)
     if "llama" in m or "tinyllama" in m or "qwen" in m or "phi" in m:
         return (["q_proj", "k_proj", "v_proj", "o_proj"], False)
     raise ValueError(f"Set LoRA target_modules for base model {model_name!r} in training/train_lora.py")
 
 
 def encode_pair(tokenizer: Any, inp: str, output: str, max_length: int) -> dict[str, torch.Tensor]:
-    prefix = "<INPUT>\n" + inp + "\n<OUTPUT>\n"
-    suffix = output + "\n<|endoftext|>\n"
+    prefix = f"### Instruction:\nYou MUST output ONLY valid JSON. No extra text. No explanation.\nINPUT: {inp}\n\n### Response:\n"
+    suffix = output
     ids_pre = tokenizer.encode(prefix, add_special_tokens=False)
     ids_suf = tokenizer.encode(suffix, add_special_tokens=False)
+    # Append EOS so model learns to stop (lm_head knows EOS from pretraining)
+    eos_id = tokenizer.eos_token_id
+    if eos_id is not None:
+        ids_suf = ids_suf + [eos_id]
     ids = (ids_pre + ids_suf)[:max_length]
     labels = ([-100] * len(ids_pre) + ids_suf)[:max_length]
     pad_id = tokenizer.pad_token_id
@@ -87,7 +95,7 @@ class SymbolicSampleCallback(TrainerCallback):
     def __init__(self, model: torch.nn.Module, tokenizer: Any, sample_nl: str = "get current time") -> None:
         self.model = model
         self.tokenizer = tokenizer
-        self.prefix = "<INPUT>\n" + sample_nl + "\n<OUTPUT>\n"
+        self.prefix = f"### Instruction:\nYou MUST output ONLY valid JSON. No extra text. No explanation.\nINPUT: {sample_nl}\n\n### Response:\n"
 
     def on_step_end(self, args: TrainingArguments, state, control, **kwargs):  # type: ignore[no-untyped-def]
         step = int(state.global_step)
@@ -101,17 +109,22 @@ class SymbolicSampleCallback(TrainerCallback):
             if pad_id is None:
                 pad_id = self.tokenizer.eos_token_id
             eos_id = self.tokenizer.eos_token_id
+            # Also stop at <END> token
+            end_id = self.tokenizer.encode("<END>", add_special_tokens=False)
+            stop_ids = [eos_id]
+            if end_id:
+                stop_ids.append(end_id[0])
             with torch.no_grad():
                 ids = self.tokenizer.encode(self.prefix, return_tensors="pt", add_special_tokens=False).to(dev)
                 out = self.model.generate(
                     ids,
-                    max_new_tokens=64,
+                    max_new_tokens=32,
                     do_sample=False,
                     pad_token_id=pad_id,
-                    eos_token_id=eos_id,
+                    eos_token_id=stop_ids,
                 )
             full = self.tokenizer.decode(out[0], skip_special_tokens=False)
-            tail = full.split("<OUTPUT>", 1)[-1].strip() if "<OUTPUT>" in full else full[:200]
+            tail = full.split("### Response:", 1)[-1].strip() if "### Response:" in full else full[:200]
             print(f"\n[SAMPLE step={step}] {tail[:280]!r}\n")
         except Exception as e:
             print(f"\n[SAMPLE step={step}] generate failed: {type(e).__name__}: {e}\n")
@@ -119,6 +132,43 @@ class SymbolicSampleCallback(TrainerCallback):
             if was_training:
                 self.model.train()
         return control
+
+
+class AntiCollapseTrainer(Trainer):
+    """Custom trainer that penalizes repeated tokens and missing <END>."""
+
+    def __init__(self, end_token_id: int | None = None, **kwargs):
+        super().__init__(**kwargs)
+        self.end_token_id = end_token_id
+
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+        labels = inputs.get("labels")
+        outputs = model(**inputs)
+        logits = outputs.logits
+
+        # Standard cross-entropy loss (with label smoothing from TrainingArguments)
+        shift_logits = logits[..., :-1, :].contiguous()
+        shift_labels = labels[..., 1:].contiguous()
+        loss_fct = torch.nn.CrossEntropyLoss(
+            ignore_index=-100,
+            label_smoothing=self.args.label_smoothing_factor,
+        )
+        ce_loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+
+        # Repetition penalty: penalize when consecutive token predictions are identical
+        pred_tokens = shift_logits.argmax(dim=-1)  # (batch, seq)
+        # Compare each token to the next
+        if pred_tokens.size(-1) > 1:
+            same_as_prev = (pred_tokens[:, 1:] == pred_tokens[:, :-1]).float()
+            # Weight by how many valid (non-padding) positions
+            valid_mask = (shift_labels[:, 1:] != -100).float()
+            repeat_penalty = (same_as_prev * valid_mask).sum() / (valid_mask.sum() + 1e-8)
+            # Scale: 0.1 weight on repetition penalty
+            loss = ce_loss + 0.1 * repeat_penalty
+        else:
+            loss = ce_loss
+
+        return (loss, outputs) if return_outputs else loss
 
 
 def save_run_config(
@@ -159,7 +209,7 @@ def save_run_config(
         "base_model": resolved_model,
         "dataset": dataset,
         "timestamp": timestamp,
-        "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
+        "prompt_format": "### Instruction:\nYou MUST output ONLY valid JSON. No extra text. No explanation.\nINPUT: {input}\n\n### Response:\n",
     }
     (fam_root / "config.json").write_text(
         json.dumps(family_config, indent=2) + "\n", encoding="utf-8"
@@ -194,14 +244,8 @@ def main() -> None:
     adapter_dir, fam_root = _family_paths(args.family)
     dataset_dir = Path(args.dataset).expanduser().resolve() if args.dataset else None
 
-    records = load_training_records(
-        ROOT,
-        dataset_dir=dataset_dir,
-        dedupe_by_program_hash=cfg.DEDUPE_BY_PROGRAM_HASH,
-        rebalance_ops=cfg.REBALANCE_DATASET,
-    )
-    if not records:
-        raise SystemExit("No training records; populate data/canonical.jsonl and data/generated.jsonl")
+    records = load_family_dataset(ROOT, args.family)
+    print(f"Loaded {len(records)} training samples for family: {args.family}")
 
     model, resolved = load_causal_lm_with_fallback(
         cfg.BASE_MODEL_NAME, cfg.BASE_MODEL_FALLBACK
@@ -214,13 +258,11 @@ def main() -> None:
     except Exception:
         model_vocab = None
     tok_vocab = len(tokenizer)
-    if model_vocab is not None and tok_vocab == model_vocab:
-        # Safe no-op resize path when tokenizer/model vocab already match.
+    if model_vocab is not None and tok_vocab != model_vocab:
+        print(f"Resizing embeddings: {model_vocab} -> {tok_vocab}")
         model.resize_token_embeddings(tok_vocab)
-    else:
-        print(
-            f"Skipping resize_token_embeddings (tokenizer_vocab={tok_vocab}, model_vocab={model_vocab})."
-        )
+    elif model_vocab is not None:
+        model.resize_token_embeddings(tok_vocab)
 
     targets, fan_in = lora_target_modules(resolved)
     peft_config = LoraConfig(
@@ -267,12 +309,17 @@ def main() -> None:
     ta_kwargs: dict = dict(
         output_dir=str(adapter_dir),
         per_device_train_batch_size=cfg.BATCH_SIZE,
+        gradient_accumulation_steps=cfg.GRADIENT_ACCUMULATION_STEPS,
         learning_rate=cfg.LEARNING_RATE,
+        weight_decay=cfg.WEIGHT_DECAY,
+        warmup_ratio=cfg.WARMUP_RATIO,
+        label_smoothing_factor=cfg.LABEL_SMOOTHING,
         logging_steps=10,
         save_strategy="epoch" if args.max_steps is None else "no",
         report_to=[],
         remove_unused_columns=False,
         dataloader_pin_memory=torch.cuda.is_available(),
+        fp16=torch.cuda.is_available(),
     )
     if args.max_steps is not None:
         ta_kwargs["max_steps"] = args.max_steps
@@ -280,8 +327,13 @@ def main() -> None:
         ta_kwargs["num_train_epochs"] = cfg.EPOCHS
     targs = TrainingArguments(**ta_kwargs)
 
+    # Resolve <END> token id for anti-collapse loss
+    end_ids = tokenizer.encode("<END>", add_special_tokens=False)
+    end_token_id = end_ids[0] if end_ids else None
+
     sample_cb = SymbolicSampleCallback(model, tokenizer)
-    trainer = Trainer(
+    trainer = AntiCollapseTrainer(
+        end_token_id=end_token_id,
         model=model,
         args=targs,
         train_dataset=ds,

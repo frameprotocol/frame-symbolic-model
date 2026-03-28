@@ -5,92 +5,123 @@
     "english": {
       "gguf": "models/english/model.gguf",
       "adapter": "models/english/adapter",
-      "base_model": "Qwen/Qwen2.5-0.5B",
-      "scripts": ["latin"],
+      "base_model": "pruned_base (Qwen2.5-0.5B, 12L/8k-vocab)",
+      "scripts": [
+        "latin"
+      ],
       "version": "1.0",
-      "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
-      "sha256": "",
-      "size_mb": 0
+      "prompt_format": "<START>\nINPUT: {input}\nOUTPUT: ",
+      "sha256": "6d149b018c847643c39a81ae19bb076baf42aed86d1f5aa9b0294e47cf24adc0",
+      "size_mb": 379.4
     },
     "cjk": {
       "gguf": "models/cjk/model.gguf",
       "adapter": "models/cjk/adapter",
-      "base_model": "Qwen/Qwen2.5-0.5B",
-      "scripts": ["han", "hiragana", "katakana", "hangul"],
+      "base_model": "pruned_base (Qwen2.5-0.5B, 12L/8k-vocab)",
+      "scripts": [
+        "han",
+        "hiragana",
+        "katakana",
+        "hangul"
+      ],
       "version": "1.0",
-      "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
-      "sha256": "",
-      "size_mb": 0
+      "prompt_format": "<START>\nINPUT: {input}\nOUTPUT: ",
+      "sha256": "10fb95ff2f2f9e2ffbdf4b5242e3c456d21b5f58b6afc0024360382bd64d35b2",
+      "size_mb": 379.4
     },
     "arabic": {
       "gguf": "models/arabic/model.gguf",
       "adapter": "models/arabic/adapter",
-      "base_model": "Qwen/Qwen2.5-0.5B",
-      "scripts": ["arabic"],
+      "base_model": "pruned_base (Qwen2.5-0.5B, 12L/8k-vocab)",
+      "scripts": [
+        "arabic"
+      ],
       "version": "1.0",
-      "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
-      "sha256": "",
-      "size_mb": 0
+      "prompt_format": "<START>\nINPUT: {input}\nOUTPUT: ",
+      "sha256": "60367ca0c92308578421ee7c04051c42642bc5c3bda9875a17156653b4243a2d",
+      "size_mb": 379.4
     },
     "indic": {
       "gguf": "models/indic/model.gguf",
       "adapter": "models/indic/adapter",
-      "base_model": "Qwen/Qwen2.5-0.5B",
-      "scripts": ["devanagari", "tamil", "telugu", "bengali", "gujarati", "kannada", "malayalam", "punjabi"],
+      "base_model": "pruned_base (Qwen2.5-0.5B, 12L/8k-vocab)",
+      "scripts": [
+        "devanagari",
+        "tamil",
+        "telugu",
+        "bengali",
+        "gujarati",
+        "kannada",
+        "malayalam",
+        "punjabi"
+      ],
       "version": "1.0",
-      "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
-      "sha256": "",
-      "size_mb": 0
+      "prompt_format": "<START>\nINPUT: {input}\nOUTPUT: ",
+      "sha256": "19d2738e3456f9be91f4d83dbbafffc6b900d925bec1e2e3f81ad4d1ab70ddb7",
+      "size_mb": 379.4
     },
     "cyrillic": {
       "gguf": "models/cyrillic/model.gguf",
       "adapter": "models/cyrillic/adapter",
-      "base_model": "Qwen/Qwen2.5-0.5B",
-      "scripts": ["cyrillic"],
+      "base_model": "pruned_base (Qwen2.5-0.5B, 12L/8k-vocab)",
+      "scripts": [
+        "cyrillic"
+      ],
       "version": "1.0",
-      "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
-      "sha256": "",
-      "size_mb": 0
+      "prompt_format": "<START>\nINPUT: {input}\nOUTPUT: ",
+      "sha256": "33c5697af39847b9f5c31b251a294289e6ef83b6d70e50d93b9de7c217a1169b",
+      "size_mb": 379.4
     },
     "southeast_asian": {
       "gguf": "models/southeast_asian/model.gguf",
       "adapter": "models/southeast_asian/adapter",
-      "base_model": "Qwen/Qwen2.5-0.5B",
-      "scripts": ["thai", "lao", "khmer", "myanmar"],
+      "base_model": "pruned_base (Qwen2.5-0.5B, 12L/8k-vocab)",
+      "scripts": [
+        "thai",
+        "lao",
+        "khmer",
+        "myanmar"
+      ],
       "version": "1.0",
-      "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
-      "sha256": "",
-      "size_mb": 0
+      "prompt_format": "<START>\nINPUT: {input}\nOUTPUT: ",
+      "sha256": "230486a5725a62372e3dc6b14fefadb4f7de5d687eed8c4e48f3a1bc46bcb58c",
+      "size_mb": 379.4
     },
     "hebrew": {
       "gguf": "models/hebrew/model.gguf",
       "adapter": "models/hebrew/adapter",
-      "base_model": "Qwen/Qwen2.5-0.5B",
-      "scripts": ["hebrew"],
+      "base_model": "pruned_base (Qwen2.5-0.5B, 12L/8k-vocab)",
+      "scripts": [
+        "hebrew"
+      ],
       "version": "1.0",
-      "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
-      "sha256": "",
-      "size_mb": 0
+      "prompt_format": "<START>\nINPUT: {input}\nOUTPUT: ",
+      "sha256": "8be8fd5fff3eabf4c4089a7a85f58cc3021d4fea86ef31f3b9f40d74a130d08f",
+      "size_mb": 379.4
     },
     "greek": {
       "gguf": "models/greek/model.gguf",
       "adapter": "models/greek/adapter",
-      "base_model": "Qwen/Qwen2.5-0.5B",
-      "scripts": ["greek"],
+      "base_model": "pruned_base (Qwen2.5-0.5B, 12L/8k-vocab)",
+      "scripts": [
+        "greek"
+      ],
       "version": "1.0",
-      "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
-      "sha256": "",
-      "size_mb": 0
+      "prompt_format": "<START>\nINPUT: {input}\nOUTPUT: ",
+      "sha256": "ec0a8bf713ca3487bff2f94beb040a1233135f639b396d4006edf9a7f7f40830",
+      "size_mb": 379.4
     },
     "ethiopic": {
       "gguf": "models/ethiopic/model.gguf",
       "adapter": "models/ethiopic/adapter",
-      "base_model": "Qwen/Qwen2.5-0.5B",
-      "scripts": ["ethiopic"],
+      "base_model": "pruned_base (Qwen2.5-0.5B, 12L/8k-vocab)",
+      "scripts": [
+        "ethiopic"
+      ],
       "version": "1.0",
-      "prompt_format": "<INPUT>\n{input}\n<OUTPUT>\n",
-      "sha256": "",
-      "size_mb": 0
+      "prompt_format": "<START>\nINPUT: {input}\nOUTPUT: ",
+      "sha256": "d10c144d15ffa3359dbc716eddd303e8b52e85a492a41f4728872874a27e892a",
+      "size_mb": 379.4
     }
   }
 }

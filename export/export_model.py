@@ -5,6 +5,9 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import os
+import shutil
+import subprocess
 import sys
 import urllib.request
 from pathlib import Path
@@ -119,14 +122,69 @@ def main() -> None:
         )
     output.parent.mkdir(parents=True, exist_ok=True)
 
+    # Map requested quantization to a converter-compatible outtype.
+    # convert_hf_to_gguf.py only supports a limited set of outtypes (f32, f16,
+    # bf16, q8_0, auto).  For advanced k-quant types we first export as f16
+    # (unquantized), then quantize ONCE with the llama.cpp `quantize` binary.
+    requested_quant = args.quantization.lower()
+    if requested_quant in ("q3_k_m", "q4_k_m", "q5_k_m", "q6_k"):
+        outtype = "f16"
+        post_quantize = requested_quant
+    else:
+        outtype = requested_quant
+        post_quantize = None
+
     _verify_minimal_deps_or_stop()
     converter_path = _ensure_local_converter()
     converter = _load_local_converter(converter_path)
     print(f"Using local converter module: {converter_path}")
     print(f"Family: {args.family}")
-    print(f"Converting {merged_dir} -> {output} with quantization={args.quantization}")
-    _run_converter(converter, converter_path, merged_dir, output, args.quantization)
-    print(f"Saved GGUF model to: {output}")
+
+    # If post-quantization is needed, export to a temporary intermediate file.
+    if post_quantize:
+        intermediate = output.with_suffix(".f16.gguf")
+        print(f"Converting {merged_dir} -> {intermediate} with outtype={outtype} (intermediate)")
+        _run_converter(converter, converter_path, merged_dir, intermediate, outtype)
+        print(f"Intermediate GGUF saved: {intermediate}")
+
+        # Locate the llama.cpp quantize binary.
+        quantize_bin = shutil.which("quantize") or shutil.which("llama-quantize")
+        if quantize_bin is None:
+            # Check common relative paths
+            for candidate in (
+                ROOT / "llama.cpp" / "build" / "bin" / "quantize",
+                ROOT / "llama.cpp" / "build" / "bin" / "llama-quantize",
+                Path("quantize"),
+            ):
+                if candidate.is_file() and os.access(candidate, os.X_OK):
+                    quantize_bin = str(candidate)
+                    break
+        if quantize_bin is None:
+            raise FileNotFoundError(
+                "Could not find the llama.cpp 'quantize' (or 'llama-quantize') binary. "
+                "Build llama.cpp or ensure the binary is on PATH."
+            )
+
+        print(f"Post-quantizing {intermediate} -> {output} with {post_quantize}")
+        subprocess.run(
+            [quantize_bin, str(intermediate), str(output), post_quantize.upper()],
+            check=True,
+        )
+        # Remove intermediate file to save disk space.
+        intermediate.unlink(missing_ok=True)
+    else:
+        print(f"Converting {merged_dir} -> {output} with outtype={outtype}")
+        _run_converter(converter, converter_path, merged_dir, output, outtype)
+
+    # Print final file size.
+    file_size_bytes = output.stat().st_size
+    if file_size_bytes >= 1 << 30:
+        size_str = f"{file_size_bytes / (1 << 30):.2f} GB"
+    elif file_size_bytes >= 1 << 20:
+        size_str = f"{file_size_bytes / (1 << 20):.2f} MB"
+    else:
+        size_str = f"{file_size_bytes / (1 << 10):.2f} KB"
+    print(f"Saved GGUF model to: {output} ({size_str})")
 
 
 if __name__ == "__main__":

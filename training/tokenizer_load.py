@@ -8,7 +8,7 @@ from typing import Any, Tuple
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-EXTRA_SPECIAL = ["<INPUT>", "<OUTPUT>"]
+EXTRA_SPECIAL = ["<INPUT>", "<OUTPUT>", "<START>", "<END>"]
 
 
 def _add_prompt_specials(tok: Any) -> None:
